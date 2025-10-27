@@ -18,10 +18,15 @@ export default function OperativeSelector({
 }: OperativeSelectorProps) {
   // Play audio when component mounts
   useEffect(() => {
-    const audio = new Audio('https://on.soundcloud.com/6TB8HLE6h7HxfEtJ9')
+    // NOTE: SoundCloud share links don't work as direct audio sources
+    // You need a direct MP3 link instead
+    // For example: 'https://example.com/audio.mp3'
+    const audioUrl = 'https://on.soundcloud.com/6TB8HLE6h7HxfEtJ9' // This needs to be replaced with a direct MP3 URL
+
+    const audio = new Audio(audioUrl)
     audio.volume = 0.7
 
-    console.log('Attempting to play audio...')
+    console.log('Attempting to play audio from:', audioUrl)
 
     audio.addEventListener('canplaythrough', () => {
       console.log('Audio can play through')
@@ -30,6 +35,8 @@ export default function OperativeSelector({
     audio.addEventListener('error', (e) => {
       console.error('Audio error:', e)
       console.error('Audio error details:', audio.error)
+      console.error('⚠️ SoundCloud share links do not work as direct audio sources.')
+      console.error('⚠️ Please provide a direct MP3 URL instead.')
     })
 
     audio.addEventListener('loadeddata', () => {

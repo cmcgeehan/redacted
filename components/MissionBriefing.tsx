@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MISSION_DETAILS } from '@/lib/constants'
 
@@ -11,6 +11,7 @@ interface MissionBriefingProps {
 export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
   const [currentSection, setCurrentSection] = useState(0)
   const [voicesLoaded, setVoicesLoaded] = useState(false)
+  const currentUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
 
   // Text-to-speech function that returns a promise
   const speak = (text: string): Promise<void> => {
@@ -127,6 +128,12 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
   useEffect(() => {
     // Only speak if voices are loaded
     if (voicesLoaded && currentSection >= 0 && currentSection < sections.length) {
+      // Cancel any ongoing speech before starting new one
+      if (window.speechSynthesis.speaking) {
+        console.log('Canceling previous speech')
+        window.speechSynthesis.cancel()
+      }
+
       const cleanText = sections[currentSection].text.replace(/["""]/g, '')
       console.log('Speaking section:', currentSection, cleanText.substring(0, 50) + '...')
       // Fire and forget - don't block on this
