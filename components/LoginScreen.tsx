@@ -93,6 +93,7 @@ export default function LoginScreen({ onAuthenticated }: LoginScreenProps) {
             style={{
               textShadow: '0 0 20px rgba(220, 20, 60, 0.8), 0 0 40px rgba(220, 20, 60, 0.5)',
               letterSpacing: '0.3em',
+              marginLeft: '0.15em', // Compensate for letter-spacing to center properly
             }}
           >
             CLASSIFIED
