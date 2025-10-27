@@ -10,43 +10,65 @@ interface MissionBriefingProps {
 
 export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
   const [currentSection, setCurrentSection] = useState(0)
+  const [voicesLoaded, setVoicesLoaded] = useState(false)
 
   // Text-to-speech function that returns a promise
   const speak = (text: string): Promise<void> => {
     return new Promise((resolve) => {
-      if ('speechSynthesis' in window) {
-        // Cancel any ongoing speech
-        window.speechSynthesis.cancel()
+      if (!('speechSynthesis' in window)) {
+        console.log('Speech synthesis not supported')
+        resolve()
+        return
+      }
 
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel()
+
+      // Small delay to ensure cancellation completes
+      setTimeout(() => {
         const utterance = new SpeechSynthesisUtterance(text)
         utterance.rate = 0.9 // Slightly slower for dramatic effect
         utterance.pitch = 0.8 // Lower pitch for authority
-        utterance.volume = 0.8
+        utterance.volume = 1.0
+
+        // Get voices again in case they weren't loaded before
+        const voices = window.speechSynthesis.getVoices()
+        console.log('Available voices:', voices.length)
 
         // Try to use a male voice if available
-        const voices = window.speechSynthesis.getVoices()
         const preferredVoice = voices.find(voice =>
           voice.name.includes('Male') ||
           voice.name.includes('Daniel') ||
-          voice.name.includes('Alex')
+          voice.name.includes('Alex') ||
+          voice.name.includes('Google')
         )
+
         if (preferredVoice) {
           utterance.voice = preferredVoice
+          console.log('Using voice:', preferredVoice.name)
+        } else if (voices.length > 0) {
+          utterance.voice = voices[0]
+          console.log('Using default voice:', voices[0].name)
         }
 
         // Resolve promise when speech finishes
         utterance.onend = () => {
+          console.log('Speech ended')
           resolve()
         }
 
-        utterance.onerror = () => {
+        utterance.onerror = (event) => {
+          console.error('Speech error:', event)
           resolve() // Resolve anyway so flow continues
         }
 
+        utterance.onstart = () => {
+          console.log('Speech started:', text.substring(0, 50))
+        }
+
+        console.log('Speaking:', text.substring(0, 50))
         window.speechSynthesis.speak(utterance)
-      } else {
-        resolve()
-      }
+      }, 100)
     })
   }
 
@@ -78,7 +100,11 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
   ]
 
   useEffect(() => {
+    let cancelled = false
+
     const playSection = async () => {
+      if (cancelled) return
+
       if (currentSection < sections.length) {
         // Speak the current section text
         const cleanText = sections[currentSection].text.replace(/["""]/g, '') // Remove quotes for better speech
@@ -86,26 +112,55 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
         // Wait for speech to complete
         await speak(cleanText)
 
+        if (cancelled) return
+
         // Add a brief pause before next section
         await new Promise(resolve => setTimeout(resolve, 1500))
+
+        if (cancelled) return
 
         // Show next section
         setCurrentSection(currentSection + 1)
       } else {
         // All sections shown, proceed to countdown after brief pause
         await new Promise(resolve => setTimeout(resolve, 2000))
+
+        if (cancelled) return
+
         onComplete()
       }
     }
 
     playSection()
-  }, [currentSection, sections, onComplete])
+
+    return () => {
+      cancelled = true
+      // Cancel any ongoing speech when component unmounts or section changes
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel()
+      }
+    }
+  }, [currentSection])
 
   // Load voices when component mounts
   useEffect(() => {
     if ('speechSynthesis' in window) {
       // Load voices
-      window.speechSynthesis.getVoices()
+      const loadVoices = () => {
+        const voices = window.speechSynthesis.getVoices()
+        console.log('Voices loaded on mount:', voices.length)
+        if (voices.length > 0) {
+          setVoicesLoaded(true)
+        }
+      }
+
+      // Chrome loads voices asynchronously
+      if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = loadVoices
+      }
+
+      // Try loading immediately too
+      loadVoices()
     }
   }, [])
 
