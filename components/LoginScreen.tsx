@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, FormEvent } from 'react'
+import { useState, useEffect, FormEvent } from 'react'
 import { motion } from 'framer-motion'
-import { OPERATIVES } from '@/lib/constants'
 
 interface LoginScreenProps {
   onAuthenticated: (agentName: string) => void
@@ -13,6 +12,32 @@ export default function LoginScreen({ onAuthenticated }: LoginScreenProps) {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isAuthenticating, setIsAuthenticating] = useState(false)
+  const [operatives, setOperatives] = useState<string[]>([])
+  const [isLoadingOperatives, setIsLoadingOperatives] = useState(true)
+
+  // Fetch operatives on mount
+  useEffect(() => {
+    const fetchOperatives = async () => {
+      try {
+        const response = await fetch('/api/operatives')
+        const data = await response.json()
+
+        if (response.ok && data.operatives) {
+          setOperatives(data.operatives)
+        } else {
+          console.error('Failed to fetch operatives:', data.error)
+          setError('Failed to load operative list')
+        }
+      } catch (error) {
+        console.error('Error fetching operatives:', error)
+        setError('Failed to load operative list')
+      } finally {
+        setIsLoadingOperatives(false)
+      }
+    }
+
+    fetchOperatives()
+  }, [])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -116,14 +141,14 @@ export default function LoginScreen({ onAuthenticated }: LoginScreenProps) {
             <select
               value={agentName}
               onChange={(e) => setAgentName(e.target.value)}
-              disabled={isAuthenticating}
+              disabled={isAuthenticating || isLoadingOperatives}
               className="w-full bg-black border-2 border-spy-red text-white text-lg px-4 py-3 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-spy-red focus:border-transparent transition-all disabled:opacity-50 cursor-pointer"
               required
             >
               <option value="" disabled>
-                -- SELECT OPERATIVE --
+                {isLoadingOperatives ? '-- LOADING OPERATIVES --' : '-- SELECT OPERATIVE --'}
               </option>
-              {OPERATIVES.map((operative) => (
+              {operatives.map((operative) => (
                 <option key={operative} value={operative}>
                   {operative}
                 </option>
