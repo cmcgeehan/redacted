@@ -140,11 +140,8 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
                 textShadow: '0 0 10px rgba(0, 0, 0, 0.5)',
               }}
             >
-              [ BEGIN MISSION BRIEFING ]
+              [ BEGIN AUDIO BRIEFING ]
             </button>
-            <div className="text-gray-500 text-sm font-mono mt-4">
-              Click to start audio briefing
-            </div>
           </motion.div>
         </div>
       )}
