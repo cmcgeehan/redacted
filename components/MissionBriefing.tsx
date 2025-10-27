@@ -135,10 +135,22 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
   // Play voiceover independently (non-blocking) - queue all speeches at once
   useEffect(() => {
     if (voicesLoaded) {
-      // Queue all sections to speak in order when voices are ready
+      // Resume speech synthesis in case it's paused
+      console.log('Speech synthesis state:', {
+        speaking: window.speechSynthesis.speaking,
+        pending: window.speechSynthesis.pending,
+        paused: window.speechSynthesis.paused
+      })
+
+      // Force resume in case it's stuck in paused state
+      window.speechSynthesis.resume()
+
+      // Add small delays between queuing to help browser process them
       sections.forEach((section, index) => {
-        const cleanText = section.text.replace(/["""]/g, '')
-        speak(cleanText, index).catch(err => console.error('Speech error:', err))
+        setTimeout(() => {
+          const cleanText = section.text.replace(/["""]/g, '')
+          speak(cleanText, index).catch(err => console.error('Speech error:', err))
+        }, index * 100) // 100ms delay between each queue
       })
     }
   }, [voicesLoaded])
