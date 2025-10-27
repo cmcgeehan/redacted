@@ -25,10 +25,12 @@ export default function VideoEmbed({ isPlaying }: VideoEmbedProps) {
 
     if (isPlaying) {
       // Try to autoplay when countdown starts
-      event.target.playVideo().catch(() => {
+      try {
+        event.target.playVideo()
+      } catch (error) {
         // If autoplay fails (browser policy), show manual play button
         setShowPlayButton(true)
-      })
+      }
     }
   }
 
@@ -45,9 +47,11 @@ export default function VideoEmbed({ isPlaying }: VideoEmbedProps) {
 
   useEffect(() => {
     if (isPlaying && playerRef.current) {
-      playerRef.current.playVideo().catch(() => {
+      try {
+        playerRef.current.playVideo()
+      } catch (error) {
         setShowPlayButton(true)
-      })
+      }
     }
   }, [isPlaying])
 
