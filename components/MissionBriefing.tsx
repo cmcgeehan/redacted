@@ -11,13 +11,20 @@ interface MissionBriefingProps {
 export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
   const [currentSection, setCurrentSection] = useState(0)
   const [voicesLoaded, setVoicesLoaded] = useState(false)
-  const currentUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
+  const hasSpokenRef = useRef<Set<number>>(new Set())
 
   // Text-to-speech function that returns a promise
-  const speak = (text: string): Promise<void> => {
+  const speak = (text: string, sectionIndex: number): Promise<void> => {
     return new Promise((resolve) => {
       if (!('speechSynthesis' in window)) {
         console.log('Speech synthesis not supported')
+        resolve()
+        return
+      }
+
+      // Don't speak if we've already spoken this section
+      if (hasSpokenRef.current.has(sectionIndex)) {
+        console.log('Already spoke section', sectionIndex)
         resolve()
         return
       }
@@ -29,7 +36,6 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
 
       // Get voices
       const voices = window.speechSynthesis.getVoices()
-      console.log('Available voices:', voices.length)
 
       // Try to use a male voice if available
       const preferredVoice = voices.find(voice =>
@@ -45,25 +51,27 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
       } else if (voices.length > 0) {
         utterance.voice = voices[0]
         console.log('Using default voice:', voices[0].name)
-      } else {
-        console.log('No voices available')
+      }
+
+      // Mark as spoken when it starts
+      utterance.onstart = () => {
+        console.log('Speech started for section', sectionIndex)
+        hasSpokenRef.current.add(sectionIndex)
       }
 
       // Resolve promise when speech finishes
       utterance.onend = () => {
-        console.log('Speech finished')
+        console.log('Speech finished for section', sectionIndex)
         resolve()
       }
 
       utterance.onerror = (event) => {
-        // Don't log "canceled" errors as they're expected
-        if (event.error !== 'canceled') {
-          console.error('Speech error:', event.error)
-        }
+        console.error('Speech error for section', sectionIndex, ':', event.error)
+        hasSpokenRef.current.add(sectionIndex) // Mark as attempted even if error
         resolve()
       }
 
-      console.log('Starting speech...')
+      console.log('Queueing speech for section', sectionIndex)
       window.speechSynthesis.speak(utterance)
     })
   }
@@ -124,22 +132,16 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
     }
   }, [currentSection, onComplete])
 
-  // Play voiceover independently (non-blocking)
+  // Play voiceover independently (non-blocking) - queue all speeches at once
   useEffect(() => {
-    // Only speak if voices are loaded
-    if (voicesLoaded && currentSection >= 0 && currentSection < sections.length) {
-      // Cancel any ongoing speech before starting new one
-      if (window.speechSynthesis.speaking) {
-        console.log('Canceling previous speech')
-        window.speechSynthesis.cancel()
-      }
-
-      const cleanText = sections[currentSection].text.replace(/["""]/g, '')
-      console.log('Speaking section:', currentSection, cleanText.substring(0, 50) + '...')
-      // Fire and forget - don't block on this
-      speak(cleanText).catch(err => console.error('Speech error:', err))
+    if (voicesLoaded) {
+      // Queue all sections to speak in order when voices are ready
+      sections.forEach((section, index) => {
+        const cleanText = section.text.replace(/["""]/g, '')
+        speak(cleanText, index).catch(err => console.error('Speech error:', err))
+      })
     }
-  }, [currentSection, voicesLoaded])
+  }, [voicesLoaded])
 
   // Load voices when component mounts and cleanup on unmount
   useEffect(() => {
