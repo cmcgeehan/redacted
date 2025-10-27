@@ -118,14 +118,34 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
     // Start speech with user interaction
     if (voicesLoaded) {
       console.log('Starting speech with user interaction')
-      window.speechSynthesis.resume()
 
-      sections.forEach((section, index) => {
-        setTimeout(() => {
-          const cleanText = section.text.replace(/["""]/g, '')
-          speak(cleanText, index).catch(err => console.error('Speech error:', err))
-        }, index * 100)
-      })
+      // Test with a simple immediate utterance first
+      const testUtterance = new SpeechSynthesisUtterance('Test')
+      testUtterance.onstart = () => console.log('TEST UTTERANCE STARTED!')
+      testUtterance.onend = () => console.log('TEST UTTERANCE ENDED!')
+      testUtterance.onerror = (e) => console.error('TEST UTTERANCE ERROR:', e)
+
+      console.log('Speaking test utterance...')
+      window.speechSynthesis.speak(testUtterance)
+
+      setTimeout(() => {
+        console.log('State after test speak:', {
+          speaking: window.speechSynthesis.speaking,
+          pending: window.speechSynthesis.pending,
+          paused: window.speechSynthesis.paused
+        })
+      }, 100)
+
+      // Try the actual briefing speech
+      setTimeout(() => {
+        window.speechSynthesis.resume()
+        sections.forEach((section, index) => {
+          setTimeout(() => {
+            const cleanText = section.text.replace(/["""]/g, '')
+            speak(cleanText, index).catch(err => console.error('Speech error:', err))
+          }, index * 100)
+        })
+      }, 2000) // Wait 2 seconds after test
     }
   }
 
