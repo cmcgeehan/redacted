@@ -148,7 +148,7 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
 
       {/* Mission Intel Visuals */}
       {hasStarted && (
-        <div className="absolute right-8 top-1/2 -translate-y-1/2 z-10 hidden xl:block">
+        <div className="absolute right-8 top-1/2 -translate-y-1/2 z-10 hidden lg:block">
           <AnimatePresence mode="wait">
             {/* Map and Flag - Section 1 */}
             {currentSection === 1 && (
@@ -278,7 +278,7 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
       )}
 
       {/* Mission text container */}
-      <div className="relative z-10 max-w-4xl mx-auto px-6 md:px-12 xl:mr-[28rem]">
+      <div className="relative z-10 max-w-4xl mx-auto px-6 md:px-12 lg:mr-[28rem]">
         <AnimatePresence>
           {hasStarted && sections.slice(0, currentSection + 1).map((section, index) => (
             <motion.div
