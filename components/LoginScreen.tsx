@@ -106,24 +106,24 @@ export default function LoginScreen({ onAuthenticated }: LoginScreenProps) {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1 }}
-        className="relative z-10 max-w-md w-full mx-auto px-6"
+        className="relative z-10 max-w-md w-full mx-auto px-4 sm:px-6"
       >
         {/* Header */}
-        <div className="flex flex-col items-center mb-12">
+        <div className="flex flex-col items-center mb-8 sm:mb-12">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 1 }}
-            className="text-spy-red text-7xl md:text-8xl font-tech mb-6 tracking-[0.3em] font-black"
+            className="text-spy-red text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-tech mb-4 sm:mb-6 tracking-[0.2em] sm:tracking-[0.3em] font-black"
             style={{
               textShadow: '0 0 20px rgba(220, 20, 60, 0.8), 0 0 40px rgba(220, 20, 60, 0.5)',
-              letterSpacing: '0.3em',
-              paddingLeft: '0.3em', // Add padding equal to letter-spacing to truly center
+              letterSpacing: '0.2em',
+              paddingLeft: '0.2em',
             }}
           >
             CLASSIFIED
           </motion.div>
-          <div className="text-white text-xl md:text-2xl font-tech mb-2 tracking-[0.2em] font-bold">
+          <div className="text-white text-base sm:text-lg md:text-xl lg:text-2xl font-tech mb-2 tracking-[0.1em] sm:tracking-[0.2em] font-bold text-center px-2">
             AUTHORIZED PERSONNEL ONLY
           </div>
           <div className="text-gray-500 text-xs font-mono tracking-widest">
@@ -135,14 +135,15 @@ export default function LoginScreen({ onAuthenticated }: LoginScreenProps) {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Agent Name Dropdown */}
           <div>
-            <label className="block text-spy-red text-sm font-bold mb-2 tracking-wider">
+            <label className="block text-spy-red text-sm sm:text-base font-bold mb-2 tracking-wider">
               AGENT NAME
             </label>
             <select
               value={agentName}
               onChange={(e) => setAgentName(e.target.value)}
               disabled={isAuthenticating || isLoadingOperatives}
-              className="w-full bg-black border-2 border-spy-red text-white text-lg px-4 py-3 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-spy-red focus:border-transparent transition-all disabled:opacity-50 cursor-pointer"
+              className="w-full bg-black border-2 border-spy-red text-white text-base sm:text-lg px-3 sm:px-4 py-3 sm:py-4 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-spy-red focus:border-transparent transition-all disabled:opacity-50 cursor-pointer appearance-none"
+              style={{ minHeight: '48px' }}
               required
             >
               <option value="" disabled>
@@ -158,7 +159,7 @@ export default function LoginScreen({ onAuthenticated }: LoginScreenProps) {
 
           {/* Password Input */}
           <div>
-            <label className="block text-spy-red text-sm font-bold mb-2 tracking-wider">
+            <label className="block text-spy-red text-sm sm:text-base font-bold mb-2 tracking-wider">
               ACCESS CODE
             </label>
             <input
@@ -167,7 +168,8 @@ export default function LoginScreen({ onAuthenticated }: LoginScreenProps) {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter mission password"
               disabled={isAuthenticating}
-              className="w-full bg-black border-2 border-spy-red text-white text-lg px-4 py-3 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-spy-red focus:border-transparent transition-all disabled:opacity-50"
+              className="w-full bg-black border-2 border-spy-red text-white text-base sm:text-lg px-3 sm:px-4 py-3 sm:py-4 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-spy-red focus:border-transparent transition-all disabled:opacity-50"
+              style={{ minHeight: '48px' }}
               required
             />
           </div>
@@ -187,7 +189,8 @@ export default function LoginScreen({ onAuthenticated }: LoginScreenProps) {
           <button
             type="submit"
             disabled={isAuthenticating}
-            className="w-full bg-spy-red text-white text-xl font-bold px-6 py-4 rounded-lg hover:bg-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white shadow-lg hover:shadow-2xl transform hover:scale-105 disabled:transform-none"
+            className="w-full bg-spy-red text-white text-lg sm:text-xl font-bold px-4 sm:px-6 py-4 rounded-lg hover:bg-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white shadow-lg hover:shadow-2xl transform hover:scale-105 disabled:transform-none"
+            style={{ minHeight: '56px' }}
           >
             {isAuthenticating ? (
               <span className="flex items-center justify-center gap-3">

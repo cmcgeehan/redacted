@@ -61,7 +61,7 @@ export default function OperativeSelector({
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-spy-dark z-40 overflow-hidden">
+    <div className="fixed inset-0 flex items-center justify-center bg-spy-dark z-40 overflow-y-auto overflow-x-hidden">
       {/* Background effects */}
       <div className="absolute inset-0 overflow-hidden opacity-20">
         {[...Array(3)].map((_, i) => (
@@ -77,7 +77,7 @@ export default function OperativeSelector({
       </div>
 
       {/* Main content */}
-      <div className="relative z-10 max-w-2xl mx-auto px-6 text-center">
+      <div className="relative z-10 w-full max-w-2xl mx-auto px-4 sm:px-6 text-center py-8">
         <AnimatePresence mode="wait">
           {!response ? (
             <motion.div
@@ -87,31 +87,32 @@ export default function OperativeSelector({
               transition={{ duration: 0.8 }}
             >
               {/* Header */}
-              <div className="mb-12">
-                <div className="text-spy-red text-2xl md:text-3xl font-bold mb-4 tracking-wider whitespace-nowrap">
+              <div className="mb-8 sm:mb-12">
+                <div className="text-spy-red text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-4 tracking-wider break-words px-2">
                   [ CLASSIFIED ACCESS REQUIRED ]
                 </div>
-                <div className="text-white text-lg md:text-xl mb-8">
+                <div className="text-white text-base sm:text-lg md:text-xl mb-6 sm:mb-8">
                   Confirm your mission response
                 </div>
                 {/* Agent Name Display */}
-                <div className="text-white text-3xl md:text-4xl font-tech font-bold mb-2">
+                <div className="text-white text-2xl sm:text-3xl md:text-4xl font-tech font-bold mb-2 break-words">
                   AGENT {operativeName.toUpperCase()}
                 </div>
-                <div className="text-gray-500 text-sm font-mono">
+                <div className="text-gray-500 text-xs sm:text-sm font-mono">
                   IDENTITY VERIFIED
                 </div>
               </div>
 
               {/* Accept and Decline Buttons */}
-              <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-8">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-6 sm:mb-8 w-full max-w-md mx-auto">
                 <motion.button
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 }}
                   onClick={handleAccept}
                   disabled={isSubmitting}
-                  className="bg-green-700 hover:bg-green-600 text-white text-xl md:text-2xl font-bold px-12 py-5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white shadow-lg hover:shadow-2xl transform hover:scale-105 w-full sm:w-auto"
+                  className="bg-green-700 hover:bg-green-600 text-white text-lg sm:text-xl md:text-2xl font-bold px-8 sm:px-12 py-4 sm:py-5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white shadow-lg hover:shadow-2xl transform hover:scale-105 w-full sm:w-auto"
+                  style={{ minHeight: '56px' }}
                 >
                   {isSubmitting ? (
                     <span className="flex items-center justify-center gap-3">
@@ -129,7 +130,8 @@ export default function OperativeSelector({
                   transition={{ delay: 0.3 }}
                   onClick={handleDecline}
                   disabled={isSubmitting}
-                  className="bg-spy-red hover:bg-red-600 text-white text-xl md:text-2xl font-bold px-12 py-5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white shadow-lg hover:shadow-2xl transform hover:scale-105 w-full sm:w-auto"
+                  className="bg-spy-red hover:bg-red-600 text-white text-lg sm:text-xl md:text-2xl font-bold px-8 sm:px-12 py-4 sm:py-5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white shadow-lg hover:shadow-2xl transform hover:scale-105 w-full sm:w-auto"
+                  style={{ minHeight: '56px' }}
                 >
                   {isSubmitting ? (
                     <span className="flex items-center justify-center gap-3">

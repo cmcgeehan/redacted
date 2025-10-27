@@ -110,7 +110,7 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
   }, [])
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-spy-dark z-40 overflow-hidden">
+    <div className="fixed inset-0 flex items-center justify-center bg-spy-dark z-40 overflow-y-auto overflow-x-hidden">
       {/* Background smoke effect */}
       <div className="absolute inset-0 overflow-hidden opacity-30">
         {[...Array(3)].map((_, i) => (

@@ -70,8 +70,12 @@ export default function Home() {
       {/* Background gradient */}
       <div className="fixed inset-0 bg-gradient-to-br from-spy-dark via-black to-red-950 -z-10" />
 
-      {/* Video embed - shown during countdown */}
-      {stage === 'countdown' && <VideoEmbed isPlaying={isVideoPlaying} />}
+      {/* Video embed - pre-load during briefing, show during countdown */}
+      {(stage === 'briefing' || stage === 'countdown') && (
+        <div className={stage === 'briefing' ? 'hidden' : ''}>
+          <VideoEmbed isPlaying={isVideoPlaying} />
+        </div>
+      )}
 
       {/* Stage components */}
       {stage === 'login' && <LoginScreen onAuthenticated={handleAuthenticated} />}
