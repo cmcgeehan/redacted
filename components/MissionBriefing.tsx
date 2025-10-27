@@ -91,7 +91,7 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
       // All sections shown, wait a bit then complete
       const timer = setTimeout(() => {
         setCurrentSection(nextSection)
-      }, 3000) // Time for last section (self-destruct message)
+      }, 5000) // Time for last section (self-destruct message)
       return () => clearTimeout(timer)
     }
   }, [currentSection, hasStarted, onComplete])
