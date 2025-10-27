@@ -32,10 +32,6 @@ export default function Home() {
   const handleRespondToMission = async (operativeName: string, status: 'accepted' | 'declined') => {
     setIsSubmitting(true)
 
-    console.log('Submitting RSVP for operative:', operativeName)
-    console.log('Operative name type:', typeof operativeName)
-    console.log('Operative name length:', operativeName.length)
-
     try {
       const response = await fetch('/api/rsvp', {
         method: 'POST',
@@ -54,9 +50,7 @@ export default function Home() {
         setResponse(status)
       } else {
         console.error('RSVP failed:', data.error)
-        console.error('RSVP error details:', data.details)
-        console.error('Full error response:', data)
-        alert(`Failed to submit response: ${data.details || data.error || 'Unknown error'}`)
+        alert('Failed to submit response. Please try again.')
       }
     } catch (error) {
       console.error('Error submitting response:', error)

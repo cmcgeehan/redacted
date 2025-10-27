@@ -5,9 +5,6 @@ export async function POST(request: NextRequest) {
   try {
     const { operativeName, status } = await request.json()
 
-    console.log('RSVP Request - Operative Name:', operativeName)
-    console.log('RSVP Request - Status:', status)
-
     if (!operativeName || !status) {
       return NextResponse.json(
         { error: 'Operative name and status are required' },
@@ -20,29 +17,6 @@ export async function POST(request: NextRequest) {
         { error: 'Status must be "accepted" or "declined"' },
         { status: 400 }
       )
-    }
-
-    // First, check if the operative exists
-    const { data: existingData, error: checkError } = await supabase
-      .from('mission_rsvps')
-      .select('*')
-      .eq('operative_name', operativeName)
-
-    console.log('Checking for operative:', operativeName)
-    console.log('Existing data found:', existingData)
-    console.log('Check error:', checkError)
-
-    if (checkError) {
-      console.error('Error checking operative:', checkError)
-    }
-
-    if (!existingData || existingData.length === 0) {
-      // Try case-insensitive match
-      const { data: allOperatives } = await supabase
-        .from('mission_rsvps')
-        .select('operative_name')
-
-      console.log('All operatives in database:', allOperatives)
     }
 
     // Update the rsvp_status and accepted_at timestamp (only for accepted)
@@ -63,12 +37,8 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Supabase error:', error)
-      console.error('Supabase error details:', JSON.stringify(error, null, 2))
       return NextResponse.json(
-        {
-          error: 'Failed to submit RSVP',
-          details: error.message || 'Unknown database error'
-        },
+        { error: 'Failed to submit RSVP' },
         { status: 500 }
       )
     }
