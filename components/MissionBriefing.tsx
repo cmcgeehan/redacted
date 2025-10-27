@@ -9,8 +9,9 @@ interface MissionBriefingProps {
 }
 
 export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
-  const [currentSection, setCurrentSection] = useState(0)
+  const [currentSection, setCurrentSection] = useState(-1) // Start at -1 to wait for user
   const [voicesLoaded, setVoicesLoaded] = useState(false)
+  const [hasStarted, setHasStarted] = useState(false)
   const hasSpokenRef = useRef<Set<number>>(new Set())
 
   // Text-to-speech function that returns a promise
@@ -109,8 +110,29 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
     },
   ]
 
+  // Handle beginning the briefing with user interaction
+  const handleBegin = () => {
+    setHasStarted(true)
+    setCurrentSection(0)
+
+    // Start speech with user interaction
+    if (voicesLoaded) {
+      console.log('Starting speech with user interaction')
+      window.speechSynthesis.resume()
+
+      sections.forEach((section, index) => {
+        setTimeout(() => {
+          const cleanText = section.text.replace(/["""]/g, '')
+          speak(cleanText, index).catch(err => console.error('Speech error:', err))
+        }, index * 100)
+      })
+    }
+  }
+
   // Display text sections on schedule
   useEffect(() => {
+    if (!hasStarted || currentSection < 0) return
+
     if (currentSection >= sections.length) {
       const timer = setTimeout(() => onComplete(), 2000)
       return () => clearTimeout(timer)
@@ -130,30 +152,15 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
       }, 8000) // Time for last section
       return () => clearTimeout(timer)
     }
-  }, [currentSection, onComplete])
+  }, [currentSection, hasStarted, onComplete])
 
-  // Play voiceover independently (non-blocking) - queue all speeches at once
+  // Auto-start briefing once voices are loaded (without speech for now)
   useEffect(() => {
-    if (voicesLoaded) {
-      // Resume speech synthesis in case it's paused
-      console.log('Speech synthesis state:', {
-        speaking: window.speechSynthesis.speaking,
-        pending: window.speechSynthesis.pending,
-        paused: window.speechSynthesis.paused
-      })
-
-      // Force resume in case it's stuck in paused state
-      window.speechSynthesis.resume()
-
-      // Add small delays between queuing to help browser process them
-      sections.forEach((section, index) => {
-        setTimeout(() => {
-          const cleanText = section.text.replace(/["""]/g, '')
-          speak(cleanText, index).catch(err => console.error('Speech error:', err))
-        }, index * 100) // 100ms delay between each queue
-      })
+    if (voicesLoaded && !hasStarted) {
+      // Voices are ready, show the begin button
+      console.log('Voices loaded, ready to begin')
     }
-  }, [voicesLoaded])
+  }, [voicesLoaded, hasStarted])
 
   // Load voices when component mounts and cleanup on unmount
   useEffect(() => {
@@ -198,10 +205,32 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
         ))}
       </div>
 
+      {/* Begin button - shown before briefing starts */}
+      {!hasStarted && voicesLoaded && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="relative z-20 text-center"
+        >
+          <button
+            onClick={handleBegin}
+            className="bg-spy-red hover:bg-red-600 text-white text-2xl md:text-3xl font-tech font-bold px-12 py-6 rounded-lg transition-all border-2 border-white shadow-2xl transform hover:scale-105"
+            style={{
+              textShadow: '0 0 10px rgba(0, 0, 0, 0.5)',
+            }}
+          >
+            [ BEGIN MISSION BRIEFING ]
+          </button>
+          <div className="text-gray-500 text-sm font-mono mt-4">
+            Click to start audio briefing
+          </div>
+        </motion.div>
+      )}
+
       {/* Mission text container */}
       <div className="relative z-10 max-w-4xl mx-auto px-6 md:px-12">
         <AnimatePresence>
-          {sections.slice(0, currentSection + 1).map((section, index) => (
+          {hasStarted && sections.slice(0, currentSection + 1).map((section, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}
