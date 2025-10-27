@@ -140,15 +140,19 @@ export default function LoginScreen({ onAuthenticated }: LoginScreenProps) {
               value={agentName}
               onChange={(e) => setAgentName(e.target.value)}
               disabled={isAuthenticating || isLoadingOperatives}
-              className="w-full bg-black border-2 border-spy-red text-white text-xl sm:text-lg px-3 sm:px-4 py-3 sm:py-4 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-spy-red focus:border-transparent transition-all disabled:opacity-50 cursor-pointer"
-              style={{ minHeight: '48px', fontSize: '20px' }}
+              className="w-full bg-black border-2 border-spy-red text-white px-3 sm:px-4 py-3 sm:py-4 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-spy-red focus:border-transparent transition-all disabled:opacity-50 cursor-pointer"
+              style={{
+                minHeight: '48px',
+                fontSize: '28px',
+                lineHeight: '1.5'
+              }}
               required
             >
-              <option value="" disabled style={{ fontSize: '20px', padding: '12px' }}>
+              <option value="" disabled>
                 {isLoadingOperatives ? '-- LOADING OPERATIVES --' : '-- SELECT OPERATIVE --'}
               </option>
               {operatives.map((operative) => (
-                <option key={operative} value={operative} style={{ fontSize: '20px', padding: '12px' }}>
+                <option key={operative} value={operative}>
                   {operative}
                 </option>
               ))}
