@@ -15,43 +15,46 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
 
   const sections = [
     {
-      text: (
-        <span>
-          "<span className="text-spy-red">This</span> <span className="text-spy-red">light</span> <span className="text-spy-red">to</span> <span className="text-spy-red">honor</span>"
-        </span>
-      ),
-      className: 'text-4xl md:text-6xl italic font-bold mb-12 text-white',
+      text: 'Good morning Agent.',
+      className: 'text-2xl md:text-3xl text-white mb-8',
       displayDelay: 0,
     },
     {
-      text: 'Good morning Agent.',
-      className: 'text-2xl md:text-3xl text-white mb-8',
+      text: (
+        <span>
+          Your mission, should you choose <span className="text-spy-red">to</span> accept it, is to rendezvous in Montréal, Québec, on <span className="text-spy-red">this</span> January 22nd for a covert operation expected to last three days that is of the highest importance.
+        </span>
+      ),
+      className: 'text-lg md:text-xl text-gray-300 mb-6 leading-relaxed',
       displayDelay: 3000,
     },
     {
-      text: 'Your mission, should you choose to accept it, is to rendezvous in Montréal, Québec, on this January 22nd for a covert operation expected to last three days that is of the highest importance.',
+      text: (
+        <span>
+          The mission site is a safehouse deep in the woods, where conditions will be harsh, secrecy paramount, and the bonds of brotherhood tested. Forecasts predict temperatures near 7°F — agents are advised to pack for cold, potential exposure, activities in <span className="text-spy-red">light</span> and darkness, and unregulated levels of adrenaline.
+        </span>
+      ),
       className: 'text-lg md:text-xl text-gray-300 mb-6 leading-relaxed',
-      displayDelay: 8000,
+      displayDelay: 15000,
     },
     {
-      text: 'The mission site is a safehouse deep in the woods, where conditions will be harsh, secrecy paramount, and the bonds of brotherhood tested. Forecasts predict temperatures near 7°F — agents are advised to pack for cold, potential exposure, activities in light and darkness, and unregulated levels of adrenaline.',
+      text: (
+        <span>
+          You are to arrive ready for three days of unpredictable field activity. Operatives will be briefed in person. Bring only your essentials — and your <span className="text-spy-red">Honor</span>.
+        </span>
+      ),
       className: 'text-lg md:text-xl text-gray-300 mb-6 leading-relaxed',
-      displayDelay: 20000,
-    },
-    {
-      text: 'You are to arrive ready for three days of unpredictable field activity. Operatives will be briefed in person. Bring only your essentials — and your Conor.',
-      className: 'text-lg md:text-xl text-gray-300 mb-6 leading-relaxed',
-      displayDelay: 34000,
+      displayDelay: 29000,
     },
     {
       text: 'As always, should you or any member of your team be caught, incapacitated, or found sleeping past noon, the Secretary will disavow all knowledge of your actions.',
       className: 'text-lg md:text-xl text-gray-400 italic mb-8 leading-relaxed',
-      displayDelay: 45000,
+      displayDelay: 40000,
     },
     {
       text: 'This message will self destruct in ten seconds.',
       className: 'text-lg md:text-xl text-gray-500 italic mb-8 leading-relaxed',
-      displayDelay: 54000,
+      displayDelay: 49000,
     },
   ]
 
@@ -88,7 +91,7 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
       // All sections shown, wait a bit then complete
       const timer = setTimeout(() => {
         setCurrentSection(nextSection)
-      }, 10000) // Time for last section (self-destruct message + countdown)
+      }, 3000) // Time for last section (self-destruct message)
       return () => clearTimeout(timer)
     }
   }, [currentSection, hasStarted, onComplete])
@@ -124,24 +127,26 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
 
       {/* Begin button - shown before briefing starts */}
       {!hasStarted && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="relative z-20 text-center"
-        >
-          <button
-            onClick={handleBegin}
-            className="bg-spy-red hover:bg-red-600 text-white text-2xl md:text-3xl font-tech font-bold px-12 py-6 rounded-lg transition-all border-2 border-white shadow-2xl transform hover:scale-105"
-            style={{
-              textShadow: '0 0 10px rgba(0, 0, 0, 0.5)',
-            }}
+        <div className="absolute inset-0 flex items-center justify-center z-20">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center"
           >
-            [ BEGIN MISSION BRIEFING ]
-          </button>
-          <div className="text-gray-500 text-sm font-mono mt-4">
-            Click to start audio briefing
-          </div>
-        </motion.div>
+            <button
+              onClick={handleBegin}
+              className="bg-spy-red hover:bg-red-600 text-white text-2xl md:text-3xl font-tech font-bold px-12 py-6 rounded-lg transition-all border-2 border-white shadow-2xl transform hover:scale-105"
+              style={{
+                textShadow: '0 0 10px rgba(0, 0, 0, 0.5)',
+              }}
+            >
+              [ BEGIN MISSION BRIEFING ]
+            </button>
+            <div className="text-gray-500 text-sm font-mono mt-4">
+              Click to start audio briefing
+            </div>
+          </motion.div>
+        </div>
       )}
 
       {/* Mission text container */}
