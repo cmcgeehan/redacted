@@ -10,72 +10,8 @@ interface MissionBriefingProps {
 
 export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
   const [currentSection, setCurrentSection] = useState(-1) // Start at -1 to wait for user
-  const [voicesLoaded, setVoicesLoaded] = useState(false)
   const [hasStarted, setHasStarted] = useState(false)
-  const hasSpokenRef = useRef<Set<number>>(new Set())
-
-  // Text-to-speech function that returns a promise
-  const speak = (text: string, sectionIndex: number): Promise<void> => {
-    return new Promise((resolve) => {
-      if (!('speechSynthesis' in window)) {
-        console.log('Speech synthesis not supported')
-        resolve()
-        return
-      }
-
-      // Don't speak if we've already spoken this section
-      if (hasSpokenRef.current.has(sectionIndex)) {
-        console.log('Already spoke section', sectionIndex)
-        resolve()
-        return
-      }
-
-      const utterance = new SpeechSynthesisUtterance(text)
-      utterance.rate = 0.9 // Slightly slower for dramatic effect
-      utterance.pitch = 0.8 // Lower pitch for authority
-      utterance.volume = 1.0
-
-      // Get voices
-      const voices = window.speechSynthesis.getVoices()
-
-      // Try to use a male voice if available
-      const preferredVoice = voices.find(voice =>
-        voice.name.includes('Male') ||
-        voice.name.includes('Daniel') ||
-        voice.name.includes('Alex') ||
-        voice.name.includes('Google')
-      )
-
-      if (preferredVoice) {
-        utterance.voice = preferredVoice
-        console.log('Using voice:', preferredVoice.name)
-      } else if (voices.length > 0) {
-        utterance.voice = voices[0]
-        console.log('Using default voice:', voices[0].name)
-      }
-
-      // Mark as spoken when it starts
-      utterance.onstart = () => {
-        console.log('Speech started for section', sectionIndex)
-        hasSpokenRef.current.add(sectionIndex)
-      }
-
-      // Resolve promise when speech finishes
-      utterance.onend = () => {
-        console.log('Speech finished for section', sectionIndex)
-        resolve()
-      }
-
-      utterance.onerror = (event) => {
-        console.error('Speech error for section', sectionIndex, ':', event.error)
-        hasSpokenRef.current.add(sectionIndex) // Mark as attempted even if error
-        resolve()
-      }
-
-      console.log('Queueing speech for section', sectionIndex)
-      window.speechSynthesis.speak(utterance)
-    })
-  }
+  const audioRef = useRef<HTMLAudioElement | null>(null)
 
   const sections = [
     {
@@ -115,60 +51,11 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
     setHasStarted(true)
     setCurrentSection(0)
 
-    // Start speech with user interaction
-    if (voicesLoaded) {
-      console.log('Starting speech with user interaction')
-
-      // Test with a simple immediate utterance first
-      const testUtterance = new SpeechSynthesisUtterance('Test. Testing one two three.')
-      testUtterance.rate = 1.0
-      testUtterance.pitch = 1.0
-      testUtterance.volume = 1.0
-
-      // Set the voice explicitly
-      const voices = window.speechSynthesis.getVoices()
-      console.log('Available voices for test:', voices.map(v => v.name))
-
-      const preferredVoice = voices.find(voice =>
-        voice.name.includes('Daniel') ||
-        voice.name.includes('Alex') ||
-        voice.name.includes('Male')
-      )
-
-      if (preferredVoice) {
-        testUtterance.voice = preferredVoice
-        console.log('Test using voice:', preferredVoice.name)
-      } else if (voices.length > 0) {
-        testUtterance.voice = voices[0]
-        console.log('Test using default voice:', voices[0].name)
-      }
-
-      testUtterance.onstart = () => console.log('🎤 TEST UTTERANCE STARTED!')
-      testUtterance.onend = () => console.log('✅ TEST UTTERANCE ENDED!')
-      testUtterance.onerror = (e) => console.error('❌ TEST UTTERANCE ERROR:', e)
-
-      console.log('Speaking test utterance...')
-      window.speechSynthesis.speak(testUtterance)
-
-      setTimeout(() => {
-        console.log('State after test speak:', {
-          speaking: window.speechSynthesis.speaking,
-          pending: window.speechSynthesis.pending,
-          paused: window.speechSynthesis.paused
-        })
-      }, 500)
-
-      // Try the actual briefing speech
-      setTimeout(() => {
-        console.log('Starting actual briefing speech...')
-        window.speechSynthesis.resume()
-        sections.forEach((section, index) => {
-          setTimeout(() => {
-            const cleanText = section.text.replace(/["""]/g, '')
-            speak(cleanText, index).catch(err => console.error('Speech error:', err))
-          }, index * 100)
-        })
-      }, 3000) // Wait 3 seconds after test
+    // Play voiceover audio
+    if (audioRef.current) {
+      audioRef.current.play()
+        .then(() => console.log('Voiceover audio playing'))
+        .catch(err => console.error('Audio playback error:', err))
     }
   }
 
@@ -197,37 +84,15 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
     }
   }, [currentSection, hasStarted, onComplete])
 
-  // Auto-start briefing once voices are loaded (without speech for now)
+  // Set up audio element
   useEffect(() => {
-    if (voicesLoaded && !hasStarted) {
-      // Voices are ready, show the begin button
-      console.log('Voices loaded, ready to begin')
-    }
-  }, [voicesLoaded, hasStarted])
+    audioRef.current = new Audio('/ttsMP3.com_VoiceText_2025-10-27_11-50-3.mp3')
+    audioRef.current.volume = 0.9
 
-  // Load voices when component mounts and cleanup on unmount
-  useEffect(() => {
-    if ('speechSynthesis' in window) {
-      // Load voices
-      const loadVoices = () => {
-        const voices = window.speechSynthesis.getVoices()
-        if (voices.length > 0) {
-          console.log('Voices loaded:', voices.length, 'voices available')
-          setVoicesLoaded(true)
-        }
-      }
-
-      // Chrome loads voices asynchronously
-      if (window.speechSynthesis.onvoiceschanged !== undefined) {
-        window.speechSynthesis.onvoiceschanged = loadVoices
-      }
-
-      // Try loading immediately too
-      loadVoices()
-
-      // Cleanup: cancel all speech when component unmounts
-      return () => {
-        window.speechSynthesis.cancel()
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current = null
       }
     }
   }, [])
@@ -249,7 +114,7 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
       </div>
 
       {/* Begin button - shown before briefing starts */}
-      {!hasStarted && voicesLoaded && (
+      {!hasStarted && (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
