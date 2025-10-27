@@ -111,7 +111,7 @@ export default function OperativeSelector({
                   transition={{ delay: 0.3 }}
                   onClick={handleAccept}
                   disabled={isSubmitting}
-                  className="bg-green-700 hover:bg-green-600 text-white text-lg sm:text-xl md:text-2xl font-bold px-8 sm:px-12 py-4 sm:py-5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white shadow-lg hover:shadow-2xl transform hover:scale-105 w-full sm:w-auto"
+                  className="bg-green-700 hover:bg-green-600 text-white text-lg sm:text-xl md:text-2xl font-bold px-8 sm:px-12 py-4 sm:py-5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white shadow-lg hover:shadow-2xl transform hover:scale-105 w-full sm:w-auto whitespace-nowrap"
                   style={{ minHeight: '56px' }}
                 >
                   {isSubmitting ? (
@@ -130,7 +130,7 @@ export default function OperativeSelector({
                   transition={{ delay: 0.3 }}
                   onClick={handleDecline}
                   disabled={isSubmitting}
-                  className="bg-spy-red hover:bg-red-600 text-white text-lg sm:text-xl md:text-2xl font-bold px-8 sm:px-12 py-4 sm:py-5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white shadow-lg hover:shadow-2xl transform hover:scale-105 w-full sm:w-auto"
+                  className="bg-spy-red hover:bg-red-600 text-white text-lg sm:text-xl md:text-2xl font-bold px-8 sm:px-12 py-4 sm:py-5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white shadow-lg hover:shadow-2xl transform hover:scale-105 w-full sm:w-auto whitespace-nowrap"
                   style={{ minHeight: '56px' }}
                 >
                   {isSubmitting ? (

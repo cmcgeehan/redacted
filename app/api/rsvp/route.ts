@@ -34,7 +34,6 @@ export async function POST(request: NextRequest) {
       .update(updateData)
       .eq('operative_name', operativeName)
       .select()
-      .single()
 
     if (error) {
       console.error('Supabase error:', error)
@@ -48,17 +47,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!data) {
+    // Check if any rows were updated
+    if (!data || data.length === 0) {
       return NextResponse.json(
         { error: 'Operative not found' },
         { status: 404 }
       )
     }
 
+    // Use the first result if multiple exist (shouldn't happen with UNIQUE constraint)
+    const result = data[0]
+
     return NextResponse.json(
       {
         message: status === 'accepted' ? 'Mission accepted successfully' : 'Mission declined',
-        rsvp: data
+        rsvp: result
       },
       { status: 200 }
     )
