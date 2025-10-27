@@ -5,8 +5,12 @@ CREATE TABLE IF NOT EXISTS mission_rsvps (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   operative_name TEXT NOT NULL UNIQUE,
   operative_password TEXT NOT NULL,
+  rsvp_status TEXT,
   accepted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- If table already exists, add rsvp_status column
+-- ALTER TABLE mission_rsvps ADD COLUMN IF NOT EXISTS rsvp_status TEXT;
 
 -- Add index for faster lookups by operative name
 CREATE INDEX IF NOT EXISTS idx_mission_rsvps_operative_name

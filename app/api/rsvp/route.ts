@@ -3,20 +3,27 @@ import { supabase } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
-    const { operativeName } = await request.json()
+    const { operativeName, status } = await request.json()
 
-    if (!operativeName) {
+    if (!operativeName || !status) {
       return NextResponse.json(
-        { error: 'Operative name is required' },
+        { error: 'Operative name and status are required' },
         { status: 400 }
       )
     }
 
-    // Update the accepted_at timestamp for the operative
-    // This marks when they officially accepted the mission through the UI
+    if (status !== 'accepted' && status !== 'declined') {
+      return NextResponse.json(
+        { error: 'Status must be "accepted" or "declined"' },
+        { status: 400 }
+      )
+    }
+
+    // Update the rsvp_status and accepted_at timestamp
     const { data, error } = await supabase
       .from('mission_rsvps')
       .update({
+        rsvp_status: status,
         accepted_at: new Date().toISOString(),
       })
       .eq('operative_name', operativeName)
@@ -39,7 +46,10 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { message: 'Mission accepted successfully', rsvp: data },
+      {
+        message: status === 'accepted' ? 'Mission accepted successfully' : 'Mission declined',
+        rsvp: data
+      },
       { status: 200 }
     )
   } catch (error) {

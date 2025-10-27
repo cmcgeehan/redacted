@@ -1,26 +1,41 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { OPERATIVES } from '@/lib/constants'
 
 interface OperativeSelectorProps {
-  onAcceptMission: (operativeName: string) => void
+  operativeName: string
+  onRespondToMission: (operativeName: string, status: 'accepted' | 'declined') => void
   isSubmitting: boolean
-  isAccepted: boolean
+  response: 'accepted' | 'declined' | null
 }
 
 export default function OperativeSelector({
-  onAcceptMission,
+  operativeName,
+  onRespondToMission,
   isSubmitting,
-  isAccepted,
+  response,
 }: OperativeSelectorProps) {
-  const [selectedOperative, setSelectedOperative] = useState('')
+  // Play audio when component mounts
+  useEffect(() => {
+    const audio = new Audio('https://on.soundcloud.com/6TB8HLE6h7HxfEtJ9Y')
+    audio.volume = 0.7
+    audio.play().catch(err => {
+      console.log('Audio autoplay blocked:', err)
+    })
 
-  const handleSubmit = () => {
-    if (selectedOperative) {
-      onAcceptMission(selectedOperative)
+    return () => {
+      audio.pause()
+      audio.currentTime = 0
     }
+  }, [])
+
+  const handleAccept = () => {
+    onRespondToMission(operativeName, 'accepted')
+  }
+
+  const handleDecline = () => {
+    onRespondToMission(operativeName, 'declined')
   }
 
   return (
@@ -42,7 +57,7 @@ export default function OperativeSelector({
       {/* Main content */}
       <div className="relative z-10 max-w-2xl mx-auto px-6 text-center">
         <AnimatePresence mode="wait">
-          {!isAccepted ? (
+          {!response ? (
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -51,52 +66,59 @@ export default function OperativeSelector({
             >
               {/* Header */}
               <div className="mb-12">
-                <div className="text-spy-red text-2xl md:text-3xl font-bold mb-4 tracking-wider">
+                <div className="text-spy-red text-2xl md:text-3xl font-bold mb-4 tracking-wider whitespace-nowrap">
                   [ CLASSIFIED ACCESS REQUIRED ]
                 </div>
-                <div className="text-white text-lg md:text-xl">
-                  Select your operative name to confirm mission acceptance
+                <div className="text-white text-lg md:text-xl mb-8">
+                  Confirm your mission response
+                </div>
+                {/* Agent Name Display */}
+                <div className="text-white text-3xl md:text-4xl font-tech font-bold mb-2">
+                  AGENT {operativeName.toUpperCase()}
+                </div>
+                <div className="text-gray-500 text-sm font-mono">
+                  IDENTITY VERIFIED
                 </div>
               </div>
 
-              {/* Dropdown */}
-              <div className="mb-8">
-                <select
-                  value={selectedOperative}
-                  onChange={(e) => setSelectedOperative(e.target.value)}
-                  className="w-full max-w-md mx-auto bg-black border-2 border-spy-red text-white text-xl px-6 py-4 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-spy-red focus:border-transparent transition-all cursor-pointer"
-                  disabled={isSubmitting}
-                >
-                  <option value="" disabled>
-                    -- SELECT OPERATIVE --
-                  </option>
-                  {OPERATIVES.map((operative) => (
-                    <option key={operative} value={operative}>
-                      AGENT {operative.toUpperCase()}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Accept Button */}
-              {selectedOperative && (
+              {/* Accept and Decline Buttons */}
+              <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-8">
                 <motion.button
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  onClick={handleSubmit}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                  onClick={handleAccept}
                   disabled={isSubmitting}
-                  className="bg-spy-red text-white text-xl md:text-2xl font-bold px-12 py-5 rounded-lg hover:bg-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white shadow-lg hover:shadow-2xl transform hover:scale-105"
+                  className="bg-green-700 hover:bg-green-600 text-white text-xl md:text-2xl font-bold px-12 py-5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white shadow-lg hover:shadow-2xl transform hover:scale-105 w-full sm:w-auto"
                 >
                   {isSubmitting ? (
-                    <span className="flex items-center gap-3">
+                    <span className="flex items-center justify-center gap-3">
                       <span className="animate-spin">⟳</span>
-                      ENCRYPTING...
+                      PROCESSING...
                     </span>
                   ) : (
-                    '[ ACCEPT MISSION ]'
+                    '[ ACCEPT ]'
                   )}
                 </motion.button>
-              )}
+
+                <motion.button
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                  onClick={handleDecline}
+                  disabled={isSubmitting}
+                  className="bg-spy-red hover:bg-red-600 text-white text-xl md:text-2xl font-bold px-12 py-5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white shadow-lg hover:shadow-2xl transform hover:scale-105 w-full sm:w-auto"
+                >
+                  {isSubmitting ? (
+                    <span className="flex items-center justify-center gap-3">
+                      <span className="animate-spin">⟳</span>
+                      PROCESSING...
+                    </span>
+                  ) : (
+                    '[ DECLINE ]'
+                  )}
+                </motion.button>
+              </div>
 
               {/* Decorative elements */}
               <div className="mt-12 text-gray-600 text-sm font-mono">
@@ -105,8 +127,8 @@ export default function OperativeSelector({
                 CLEARANCE LEVEL: TOP SECRET
               </div>
             </motion.div>
-          ) : (
-            // Success state
+          ) : response === 'accepted' ? (
+            // Accepted state
             <motion.div
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -123,12 +145,12 @@ export default function OperativeSelector({
                 <div className="text-9xl mb-4">✓</div>
               </motion.div>
 
-              <div className="text-green-500 text-3xl md:text-4xl font-bold mb-6 glitch">
+              <div className="text-green-500 text-3xl md:text-4xl font-tech font-bold mb-6">
                 MISSION ACCEPTED
               </div>
 
               <div className="text-white text-xl md:text-2xl mb-8">
-                Welcome to the team, Agent {selectedOperative}.
+                Welcome to the team, Agent {operativeName}.
               </div>
 
               <div className="text-gray-400 text-lg mb-4">
@@ -144,6 +166,38 @@ export default function OperativeSelector({
                 SHA-256: {Array.from({ length: 64 }, () =>
                   Math.floor(Math.random() * 16).toString(16)
                 ).join('')}
+              </div>
+            </motion.div>
+          ) : (
+            // Declined state
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6 }}
+              className="text-center"
+            >
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="mb-8"
+              >
+                <div className="text-9xl mb-4">✗</div>
+              </motion.div>
+
+              <div className="text-spy-red text-3xl md:text-4xl font-tech font-bold mb-6">
+                MISSION DECLINED
+              </div>
+
+              <div className="text-white text-xl md:text-2xl mb-8">
+                Agent {operativeName}, your response has been recorded.
+              </div>
+
+              <div className="text-gray-400 text-lg mb-4">
+                We regret you cannot attend.
+              </div>
+
+              <div className="text-gray-600 text-sm font-mono mt-12 animate-pulse">
+                [ TRANSMISSION COMPLETE ]
               </div>
             </motion.div>
           )}

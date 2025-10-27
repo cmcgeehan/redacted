@@ -14,7 +14,7 @@ export default function Home() {
   const [authenticatedAgent, setAuthenticatedAgent] = useState<string>('')
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isAccepted, setIsAccepted] = useState(false)
+  const [response, setResponse] = useState<'accepted' | 'declined' | null>(null)
 
   const handleAuthenticated = (agentName: string) => {
     setAuthenticatedAgent(agentName)
@@ -29,7 +29,7 @@ export default function Home() {
     setStage('selector')
   }
 
-  const handleAcceptMission = async (operativeName: string) => {
+  const handleRespondToMission = async (operativeName: string, status: 'accepted' | 'declined') => {
     setIsSubmitting(true)
 
     try {
@@ -38,20 +38,23 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ operativeName }),
+        body: JSON.stringify({
+          operativeName,
+          status
+        }),
       })
 
       const data = await response.json()
 
       if (response.ok) {
-        setIsAccepted(true)
+        setResponse(status)
       } else {
         console.error('RSVP failed:', data.error)
-        alert('Failed to accept mission. Please try again.')
+        alert('Failed to submit response. Please try again.')
       }
     } catch (error) {
-      console.error('Error accepting mission:', error)
-      alert('Failed to accept mission. Please try again.')
+      console.error('Error submitting response:', error)
+      alert('Failed to submit response. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -79,9 +82,10 @@ export default function Home() {
 
       {stage === 'selector' && (
         <OperativeSelector
-          onAcceptMission={handleAcceptMission}
+          operativeName={authenticatedAgent}
+          onRespondToMission={handleRespondToMission}
           isSubmitting={isSubmitting}
-          isAccepted={isAccepted}
+          response={response}
         />
       )}
     </main>
