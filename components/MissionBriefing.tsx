@@ -11,81 +11,94 @@ interface MissionBriefingProps {
 export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
   const [currentSection, setCurrentSection] = useState(0)
 
-  // Text-to-speech function
-  const speak = (text: string) => {
-    if ('speechSynthesis' in window) {
-      // Cancel any ongoing speech
-      window.speechSynthesis.cancel()
+  // Text-to-speech function that returns a promise
+  const speak = (text: string): Promise<void> => {
+    return new Promise((resolve) => {
+      if ('speechSynthesis' in window) {
+        // Cancel any ongoing speech
+        window.speechSynthesis.cancel()
 
-      const utterance = new SpeechSynthesisUtterance(text)
-      utterance.rate = 0.9 // Slightly slower for dramatic effect
-      utterance.pitch = 0.8 // Lower pitch for authority
-      utterance.volume = 0.8
+        const utterance = new SpeechSynthesisUtterance(text)
+        utterance.rate = 0.9 // Slightly slower for dramatic effect
+        utterance.pitch = 0.8 // Lower pitch for authority
+        utterance.volume = 0.8
 
-      // Try to use a male voice if available
-      const voices = window.speechSynthesis.getVoices()
-      const preferredVoice = voices.find(voice =>
-        voice.name.includes('Male') ||
-        voice.name.includes('Daniel') ||
-        voice.name.includes('Alex')
-      )
-      if (preferredVoice) {
-        utterance.voice = preferredVoice
+        // Try to use a male voice if available
+        const voices = window.speechSynthesis.getVoices()
+        const preferredVoice = voices.find(voice =>
+          voice.name.includes('Male') ||
+          voice.name.includes('Daniel') ||
+          voice.name.includes('Alex')
+        )
+        if (preferredVoice) {
+          utterance.voice = preferredVoice
+        }
+
+        // Resolve promise when speech finishes
+        utterance.onend = () => {
+          resolve()
+        }
+
+        utterance.onerror = () => {
+          resolve() // Resolve anyway so flow continues
+        }
+
+        window.speechSynthesis.speak(utterance)
+      } else {
+        resolve()
       }
-
-      window.speechSynthesis.speak(utterance)
-    }
+    })
   }
 
   const sections = [
     {
       text: '"This light to Conor."',
       className: 'text-4xl md:text-6xl italic text-spy-red font-bold mb-12',
-      delay: 0,
     },
     {
       text: 'Good morning, Agent.',
       className: 'text-2xl md:text-3xl text-white mb-8',
-      delay: 2000,
     },
     {
       text: `Your mission, should you choose to accept it, is to rendezvous in ${MISSION_DETAILS.location}, from ${MISSION_DETAILS.startDate} to ${MISSION_DETAILS.endDate}, ${MISSION_DETAILS.year}, for a covert operation of the highest importance.`,
       className: 'text-lg md:text-xl text-gray-300 mb-6 leading-relaxed',
-      delay: 3500,
     },
     {
       text: `The mission site is a safehouse deep in the woods, where conditions will be harsh, secrecy paramount, and the bonds of brotherhood tested. Forecasts predict temperatures near ${MISSION_DETAILS.temperature} — agents are advised to pack for cold, potential exposure, and unregulated levels of adrenaline.`,
       className: 'text-lg md:text-xl text-gray-300 mb-6 leading-relaxed',
-      delay: 9000,
     },
     {
       text: 'You are to arrive ready for three days of unpredictable field activity. Operatives will be briefed in person. Bring only your essentials — and your loyalty to the mission.',
       className: 'text-lg md:text-xl text-gray-300 mb-6 leading-relaxed',
-      delay: 14000,
     },
     {
       text: 'As always, should you or any member of your team be caught, incapacitated, or found sleeping past noon, the Secretary will disavow all knowledge of your actions.',
       className: 'text-lg md:text-xl text-gray-400 italic mb-8 leading-relaxed',
-      delay: 18000,
     },
   ]
 
   useEffect(() => {
-    if (currentSection < sections.length) {
-      // Speak the current section text
-      const cleanText = sections[currentSection].text.replace(/["""]/g, '') // Remove quotes for better speech
-      speak(cleanText)
+    const playSection = async () => {
+      if (currentSection < sections.length) {
+        // Speak the current section text
+        const cleanText = sections[currentSection].text.replace(/["""]/g, '') // Remove quotes for better speech
 
-      const timer = setTimeout(() => {
+        // Wait for speech to complete
+        await speak(cleanText)
+
+        // Add a brief pause before next section
+        await new Promise(resolve => setTimeout(resolve, 1500))
+
+        // Show next section
         setCurrentSection(currentSection + 1)
-      }, sections[currentSection].delay + (currentSection === 0 ? 0 : 2000))
-
-      return () => clearTimeout(timer)
-    } else {
-      // All sections shown, proceed to countdown after brief pause
-      const timer = setTimeout(() => onComplete(), 2000)
-      return () => clearTimeout(timer)
+      } else {
+        // All sections shown, proceed to countdown after brief pause
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        onComplete()
+      }
     }
+
+    playSection()
   }, [currentSection, sections, onComplete])
 
   // Load voices when component mounts
