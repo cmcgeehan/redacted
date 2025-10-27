@@ -120,10 +120,32 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
       console.log('Starting speech with user interaction')
 
       // Test with a simple immediate utterance first
-      const testUtterance = new SpeechSynthesisUtterance('Test')
-      testUtterance.onstart = () => console.log('TEST UTTERANCE STARTED!')
-      testUtterance.onend = () => console.log('TEST UTTERANCE ENDED!')
-      testUtterance.onerror = (e) => console.error('TEST UTTERANCE ERROR:', e)
+      const testUtterance = new SpeechSynthesisUtterance('Test. Testing one two three.')
+      testUtterance.rate = 1.0
+      testUtterance.pitch = 1.0
+      testUtterance.volume = 1.0
+
+      // Set the voice explicitly
+      const voices = window.speechSynthesis.getVoices()
+      console.log('Available voices for test:', voices.map(v => v.name))
+
+      const preferredVoice = voices.find(voice =>
+        voice.name.includes('Daniel') ||
+        voice.name.includes('Alex') ||
+        voice.name.includes('Male')
+      )
+
+      if (preferredVoice) {
+        testUtterance.voice = preferredVoice
+        console.log('Test using voice:', preferredVoice.name)
+      } else if (voices.length > 0) {
+        testUtterance.voice = voices[0]
+        console.log('Test using default voice:', voices[0].name)
+      }
+
+      testUtterance.onstart = () => console.log('🎤 TEST UTTERANCE STARTED!')
+      testUtterance.onend = () => console.log('✅ TEST UTTERANCE ENDED!')
+      testUtterance.onerror = (e) => console.error('❌ TEST UTTERANCE ERROR:', e)
 
       console.log('Speaking test utterance...')
       window.speechSynthesis.speak(testUtterance)
@@ -134,10 +156,11 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
           pending: window.speechSynthesis.pending,
           paused: window.speechSynthesis.paused
         })
-      }, 100)
+      }, 500)
 
       // Try the actual briefing speech
       setTimeout(() => {
+        console.log('Starting actual briefing speech...')
         window.speechSynthesis.resume()
         sections.forEach((section, index) => {
           setTimeout(() => {
@@ -145,7 +168,7 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
             speak(cleanText, index).catch(err => console.error('Speech error:', err))
           }, index * 100)
         })
-      }, 2000) // Wait 2 seconds after test
+      }, 3000) // Wait 3 seconds after test
     }
   }
 
