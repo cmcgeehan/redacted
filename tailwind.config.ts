@@ -13,8 +13,8 @@ const config: Config = {
         'spy-dark': '#0A0A0A',
       },
       fontFamily: {
-        'mono': ['Courier New', 'monospace'],
-        'spy': ['Rajdhani', 'sans-serif'],
+        'mono': ['var(--font-share-tech)', 'Courier New', 'monospace'],
+        'tech': ['var(--font-orbitron)', 'sans-serif'],
       },
       animation: {
         'glitch': 'glitch 0.5s infinite',

@@ -1,11 +1,17 @@
 import type { Metadata } from 'next'
-import { Rajdhani } from 'next/font/google'
+import { Orbitron, Share_Tech_Mono } from 'next/font/google'
 import './globals.css'
 
-const rajdhani = Rajdhani({
-  weight: ['400', '600', '700'],
+const orbitron = Orbitron({
+  weight: ['400', '700', '900'],
   subsets: ['latin'],
-  variable: '--font-rajdhani',
+  variable: '--font-orbitron',
+})
+
+const shareTechMono = Share_Tech_Mono({
+  weight: ['400'],
+  subsets: ['latin'],
+  variable: '--font-share-tech',
 })
 
 export const metadata: Metadata = {
@@ -21,7 +27,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={rajdhani.className}>
+      <body className={`${orbitron.variable} ${shareTechMono.variable} ${orbitron.className}`}>
         {children}
       </body>
     </html>

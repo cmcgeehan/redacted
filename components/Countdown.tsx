@@ -44,19 +44,31 @@ export default function Countdown({ onComplete }: CountdownProps) {
         {count > 0 && (
           <motion.div
             key={count}
-            initial={{ opacity: 0, scale: 0.5 }}
+            initial={{ opacity: 0, scale: 0.8 }}
             animate={{
               opacity: 1,
               scale: 1,
             }}
             exit={{
               opacity: 0,
-              scale: 1.5,
+              scale: 0.9,
             }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
             className="relative z-10"
           >
-            <div className="glitch text-[20rem] md:text-[25rem] font-bold text-spy-red">
+            <div
+              className="text-[22rem] md:text-[28rem] font-tech font-black text-spy-red tracking-wider"
+              style={{
+                textShadow: `
+                  0 0 30px rgba(220, 20, 60, 0.9),
+                  0 0 60px rgba(220, 20, 60, 0.6),
+                  0 0 90px rgba(220, 20, 60, 0.4),
+                  0 0 120px rgba(220, 20, 60, 0.2),
+                  inset 0 0 30px rgba(0, 0, 0, 0.8)
+                `,
+                WebkitTextStroke: '2px rgba(0, 0, 0, 0.5)',
+              }}
+            >
               {count}
             </div>
           </motion.div>

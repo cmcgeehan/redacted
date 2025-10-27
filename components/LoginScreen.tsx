@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from 'react'
 import { motion } from 'framer-motion'
+import { OPERATIVES } from '@/lib/constants'
 
 interface LoginScreenProps {
   onAuthenticated: (agentName: string) => void
@@ -88,34 +89,45 @@ export default function LoginScreen({ onAuthenticated }: LoginScreenProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 1 }}
-            className="text-spy-red text-6xl md:text-7xl font-bold mb-6 glitch"
+            className="text-spy-red text-7xl md:text-8xl font-tech mb-6 tracking-[0.3em] font-black"
+            style={{
+              textShadow: '0 0 20px rgba(220, 20, 60, 0.8), 0 0 40px rgba(220, 20, 60, 0.5)',
+              letterSpacing: '0.3em',
+            }}
           >
-            IMF
+            CLASSIFIED
           </motion.div>
-          <div className="text-white text-2xl md:text-3xl font-bold mb-2 tracking-wider">
-            CLASSIFIED ACCESS
+          <div className="text-white text-xl md:text-2xl font-tech mb-2 tracking-[0.2em] font-bold">
+            AUTHORIZED PERSONNEL ONLY
           </div>
-          <div className="text-gray-400 text-sm font-mono">
-            CLEARANCE LEVEL: TOP SECRET
+          <div className="text-gray-500 text-xs font-mono tracking-widest">
+            [ SECURITY LEVEL: MAXIMUM ]
           </div>
         </div>
 
         {/* Login form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Agent Name Input */}
+          {/* Agent Name Dropdown */}
           <div>
             <label className="block text-spy-red text-sm font-bold mb-2 tracking-wider">
               AGENT NAME
             </label>
-            <input
-              type="text"
+            <select
               value={agentName}
               onChange={(e) => setAgentName(e.target.value)}
-              placeholder="Enter your operative name"
               disabled={isAuthenticating}
-              className="w-full bg-black border-2 border-spy-red text-white text-lg px-4 py-3 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-spy-red focus:border-transparent transition-all disabled:opacity-50"
+              className="w-full bg-black border-2 border-spy-red text-white text-lg px-4 py-3 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-spy-red focus:border-transparent transition-all disabled:opacity-50 cursor-pointer"
               required
-            />
+            >
+              <option value="" disabled>
+                -- SELECT OPERATIVE --
+              </option>
+              {OPERATIVES.map((operative) => (
+                <option key={operative} value={operative}>
+                  {operative}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Password Input */}
