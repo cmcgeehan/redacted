@@ -35,7 +35,8 @@ WITH CHECK (true);
 -- Policy: Allow anyone to update accepted_at timestamp (for mission acceptance)
 CREATE POLICY "Allow public update access"
 ON mission_rsvps FOR UPDATE
-USING (true);
+USING (true)
+WITH CHECK (true);
 
 -- Example: Add operatives with passwords
 -- INSERT INTO mission_rsvps (operative_name, operative_password) VALUES
