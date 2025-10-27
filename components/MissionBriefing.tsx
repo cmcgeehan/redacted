@@ -76,69 +76,64 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
     {
       text: '"This light to Conor."',
       className: 'text-4xl md:text-6xl italic text-spy-red font-bold mb-12',
+      displayDelay: 0,
     },
     {
       text: 'Good morning, Agent.',
       className: 'text-2xl md:text-3xl text-white mb-8',
+      displayDelay: 3000,
     },
     {
       text: `Your mission, should you choose to accept it, is to rendezvous in ${MISSION_DETAILS.location}, from ${MISSION_DETAILS.startDate} to ${MISSION_DETAILS.endDate}, ${MISSION_DETAILS.year}, for a covert operation of the highest importance.`,
       className: 'text-lg md:text-xl text-gray-300 mb-6 leading-relaxed',
+      displayDelay: 5000,
     },
     {
       text: `The mission site is a safehouse deep in the woods, where conditions will be harsh, secrecy paramount, and the bonds of brotherhood tested. Forecasts predict temperatures near ${MISSION_DETAILS.temperature} — agents are advised to pack for cold, potential exposure, and unregulated levels of adrenaline.`,
       className: 'text-lg md:text-xl text-gray-300 mb-6 leading-relaxed',
+      displayDelay: 16000,
     },
     {
       text: 'You are to arrive ready for three days of unpredictable field activity. Operatives will be briefed in person. Bring only your essentials — and your loyalty to the mission.',
       className: 'text-lg md:text-xl text-gray-300 mb-6 leading-relaxed',
+      displayDelay: 27000,
     },
     {
       text: 'As always, should you or any member of your team be caught, incapacitated, or found sleeping past noon, the Secretary will disavow all knowledge of your actions.',
       className: 'text-lg md:text-xl text-gray-400 italic mb-8 leading-relaxed',
+      displayDelay: 36000,
     },
   ]
 
+  // Display text sections on schedule
   useEffect(() => {
-    let cancelled = false
-
-    const playSection = async () => {
-      if (cancelled) return
-
-      if (currentSection < sections.length) {
-        // Speak the current section text
-        const cleanText = sections[currentSection].text.replace(/["""]/g, '') // Remove quotes for better speech
-
-        // Wait for speech to complete
-        await speak(cleanText)
-
-        if (cancelled) return
-
-        // Add a brief pause before next section
-        await new Promise(resolve => setTimeout(resolve, 1500))
-
-        if (cancelled) return
-
-        // Show next section
-        setCurrentSection(currentSection + 1)
-      } else {
-        // All sections shown, proceed to countdown after brief pause
-        await new Promise(resolve => setTimeout(resolve, 2000))
-
-        if (cancelled) return
-
-        onComplete()
-      }
+    if (currentSection >= sections.length) {
+      const timer = setTimeout(() => onComplete(), 2000)
+      return () => clearTimeout(timer)
     }
 
-    playSection()
+    const nextSection = currentSection + 1
+    if (nextSection < sections.length) {
+      const delay = sections[nextSection].displayDelay - (currentSection >= 0 ? sections[currentSection].displayDelay : 0)
+      const timer = setTimeout(() => {
+        setCurrentSection(nextSection)
+      }, delay)
+      return () => clearTimeout(timer)
+    } else {
+      // All sections shown, wait a bit then complete
+      const timer = setTimeout(() => {
+        setCurrentSection(nextSection)
+      }, 8000) // Time for last section
+      return () => clearTimeout(timer)
+    }
+  }, [currentSection, onComplete])
 
-    return () => {
-      cancelled = true
-      // Cancel any ongoing speech when component unmounts or section changes
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel()
-      }
+  // Play voiceover independently (non-blocking)
+  useEffect(() => {
+    if (currentSection >= 0 && currentSection < sections.length) {
+      const cleanText = sections[currentSection].text.replace(/["""]/g, '')
+      // Fire and forget - don't block on this
+      speak(cleanText).catch(err => console.error('Speech error:', err))
     }
   }, [currentSection])
 
