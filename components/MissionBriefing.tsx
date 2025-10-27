@@ -15,34 +15,43 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
 
   const sections = [
     {
-      text: '"This light to Conor."',
-      className: 'text-4xl md:text-6xl italic text-spy-red font-bold mb-12',
+      text: (
+        <span>
+          "<span className="text-spy-red">This</span> <span className="text-spy-red">light</span> <span className="text-spy-red">to</span> <span className="text-spy-red">honor</span>"
+        </span>
+      ),
+      className: 'text-4xl md:text-6xl italic font-bold mb-12 text-white',
       displayDelay: 0,
     },
     {
-      text: 'Good morning, Agent.',
+      text: 'Good morning Agent.',
       className: 'text-2xl md:text-3xl text-white mb-8',
       displayDelay: 3000,
     },
     {
-      text: `Your mission, should you choose to accept it, is to rendezvous in ${MISSION_DETAILS.location}, from ${MISSION_DETAILS.startDate} to ${MISSION_DETAILS.endDate}, ${MISSION_DETAILS.year}, for a covert operation of the highest importance.`,
+      text: 'Your mission, should you choose to accept it, is to rendezvous in Montréal, Québec, on this January 22nd for a covert operation expected to last three days that is of the highest importance.',
       className: 'text-lg md:text-xl text-gray-300 mb-6 leading-relaxed',
-      displayDelay: 5000,
+      displayDelay: 8000,
     },
     {
-      text: `The mission site is a safehouse deep in the woods, where conditions will be harsh, secrecy paramount, and the bonds of brotherhood tested. Forecasts predict temperatures near ${MISSION_DETAILS.temperature} — agents are advised to pack for cold, potential exposure, and unregulated levels of adrenaline.`,
+      text: 'The mission site is a safehouse deep in the woods, where conditions will be harsh, secrecy paramount, and the bonds of brotherhood tested. Forecasts predict temperatures near 7°F — agents are advised to pack for cold, potential exposure, activities in light and darkness, and unregulated levels of adrenaline.',
       className: 'text-lg md:text-xl text-gray-300 mb-6 leading-relaxed',
-      displayDelay: 16000,
+      displayDelay: 20000,
     },
     {
-      text: 'You are to arrive ready for three days of unpredictable field activity. Operatives will be briefed in person. Bring only your essentials — and your loyalty to the mission.',
+      text: 'You are to arrive ready for three days of unpredictable field activity. Operatives will be briefed in person. Bring only your essentials — and your Conor.',
       className: 'text-lg md:text-xl text-gray-300 mb-6 leading-relaxed',
-      displayDelay: 27000,
+      displayDelay: 34000,
     },
     {
       text: 'As always, should you or any member of your team be caught, incapacitated, or found sleeping past noon, the Secretary will disavow all knowledge of your actions.',
       className: 'text-lg md:text-xl text-gray-400 italic mb-8 leading-relaxed',
-      displayDelay: 36000,
+      displayDelay: 45000,
+    },
+    {
+      text: 'This message will self destruct in ten seconds.',
+      className: 'text-lg md:text-xl text-gray-500 italic mb-8 leading-relaxed',
+      displayDelay: 54000,
     },
   ]
 
