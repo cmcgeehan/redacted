@@ -2,6 +2,7 @@
 
 import { useState, useEffect, FormEvent } from 'react'
 import { motion } from 'framer-motion'
+import CustomSelect from './CustomSelect'
 
 interface LoginScreenProps {
   onAuthenticated: (agentName: string) => void
@@ -42,6 +43,13 @@ export default function LoginScreen({ onAuthenticated }: LoginScreenProps) {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError('')
+
+    // Validate agent name is selected
+    if (!agentName.trim()) {
+      setError('PLEASE SELECT AN OPERATIVE')
+      return
+    }
+
     setIsAuthenticating(true)
 
     try {
@@ -136,27 +144,13 @@ export default function LoginScreen({ onAuthenticated }: LoginScreenProps) {
             <label className="block text-spy-red text-sm sm:text-base font-bold mb-2 tracking-wider">
               AGENT NAME
             </label>
-            <select
+            <CustomSelect
               value={agentName}
-              onChange={(e) => setAgentName(e.target.value)}
+              onChange={setAgentName}
+              options={operatives}
+              placeholder={isLoadingOperatives ? '-- LOADING OPERATIVES --' : '-- SELECT OPERATIVE --'}
               disabled={isAuthenticating || isLoadingOperatives}
-              className="w-full bg-black border-2 border-spy-red text-white px-3 sm:px-4 py-3 sm:py-4 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-spy-red focus:border-transparent transition-all disabled:opacity-50 cursor-pointer"
-              style={{
-                minHeight: '48px',
-                fontSize: '28px',
-                lineHeight: '1.5'
-              }}
-              required
-            >
-              <option value="" disabled>
-                {isLoadingOperatives ? '-- LOADING OPERATIVES --' : '-- SELECT OPERATIVE --'}
-              </option>
-              {operatives.map((operative) => (
-                <option key={operative} value={operative}>
-                  {operative}
-                </option>
-              ))}
-            </select>
+            />
           </div>
 
           {/* Password Input */}
