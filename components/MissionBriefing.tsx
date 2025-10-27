@@ -76,7 +76,7 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
     if (!hasStarted || currentSection < 0) return
 
     if (currentSection >= sections.length) {
-      const timer = setTimeout(() => onComplete(), 2000)
+      const timer = setTimeout(() => onComplete(), 7000)
       return () => clearTimeout(timer)
     }
 
