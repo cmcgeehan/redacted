@@ -10,8 +10,6 @@ interface MissionBriefingProps {
 
 export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
   const [currentSection, setCurrentSection] = useState(0)
-  const [selfDestructCount, setSelfDestructCount] = useState(10)
-  const [showSelfDestruct, setShowSelfDestruct] = useState(false)
 
   // Text-to-speech function
   const speak = (text: string) => {
@@ -70,11 +68,6 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
       className: 'text-lg md:text-xl text-gray-400 italic mb-8 leading-relaxed',
       delay: 18000,
     },
-    {
-      text: 'This message will self-destruct in ten seconds.',
-      className: 'text-xl md:text-2xl text-spy-red font-bold mb-4',
-      delay: 22000,
-    },
   ]
 
   useEffect(() => {
@@ -88,11 +81,12 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
       }, sections[currentSection].delay + (currentSection === 0 ? 0 : 2000))
 
       return () => clearTimeout(timer)
-    } else if (!showSelfDestruct) {
-      // All sections shown, start self-destruct countdown
-      setTimeout(() => setShowSelfDestruct(true), 2000)
+    } else {
+      // All sections shown, proceed to countdown after brief pause
+      const timer = setTimeout(() => onComplete(), 2000)
+      return () => clearTimeout(timer)
     }
-  }, [currentSection, showSelfDestruct])
+  }, [currentSection, sections, onComplete])
 
   // Load voices when component mounts
   useEffect(() => {
@@ -101,18 +95,6 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
       window.speechSynthesis.getVoices()
     }
   }, [])
-
-  useEffect(() => {
-    if (showSelfDestruct && selfDestructCount > 0) {
-      const timer = setTimeout(() => {
-        setSelfDestructCount(selfDestructCount - 1)
-      }, 1000)
-
-      return () => clearTimeout(timer)
-    } else if (showSelfDestruct && selfDestructCount === 0) {
-      setTimeout(() => onComplete(), 500)
-    }
-  }, [showSelfDestruct, selfDestructCount, onComplete])
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-spy-dark z-40 overflow-hidden">
@@ -144,19 +126,6 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
               {section.text}
             </motion.div>
           ))}
-
-          {/* Self-destruct countdown */}
-          {showSelfDestruct && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="text-center mt-8"
-            >
-              <div className="text-8xl md:text-9xl font-bold text-spy-red glitch">
-                {selfDestructCount}
-              </div>
-            </motion.div>
-          )}
         </AnimatePresence>
       </div>
 

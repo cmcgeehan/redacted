@@ -57,8 +57,8 @@ export default function Home() {
     }
   }
 
-  // Start video when briefing begins
-  if (stage === 'briefing' && !isVideoPlaying) {
+  // Start video when countdown begins
+  if (stage === 'countdown' && !isVideoPlaying) {
     setIsVideoPlaying(true)
   }
 
@@ -67,8 +67,8 @@ export default function Home() {
       {/* Background gradient */}
       <div className="fixed inset-0 bg-gradient-to-br from-spy-dark via-black to-red-950 -z-10" />
 
-      {/* Video embed - shown during briefing */}
-      {stage === 'briefing' && <VideoEmbed isPlaying={isVideoPlaying} />}
+      {/* Video embed - shown during countdown */}
+      {stage === 'countdown' && <VideoEmbed isPlaying={isVideoPlaying} />}
 
       {/* Stage components */}
       {stage === 'login' && <LoginScreen onAuthenticated={handleAuthenticated} />}
