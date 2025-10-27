@@ -32,6 +32,10 @@ export default function Home() {
   const handleRespondToMission = async (operativeName: string, status: 'accepted' | 'declined') => {
     setIsSubmitting(true)
 
+    console.log('Submitting RSVP for operative:', operativeName)
+    console.log('Operative name type:', typeof operativeName)
+    console.log('Operative name length:', operativeName.length)
+
     try {
       const response = await fetch('/api/rsvp', {
         method: 'POST',
