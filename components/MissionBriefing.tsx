@@ -21,54 +21,42 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
         return
       }
 
-      // Cancel any ongoing speech
-      window.speechSynthesis.cancel()
+      const utterance = new SpeechSynthesisUtterance(text)
+      utterance.rate = 0.9 // Slightly slower for dramatic effect
+      utterance.pitch = 0.8 // Lower pitch for authority
+      utterance.volume = 1.0
 
-      // Small delay to ensure cancellation completes
-      setTimeout(() => {
-        const utterance = new SpeechSynthesisUtterance(text)
-        utterance.rate = 0.9 // Slightly slower for dramatic effect
-        utterance.pitch = 0.8 // Lower pitch for authority
-        utterance.volume = 1.0
+      // Get voices
+      const voices = window.speechSynthesis.getVoices()
 
-        // Get voices again in case they weren't loaded before
-        const voices = window.speechSynthesis.getVoices()
-        console.log('Available voices:', voices.length)
+      // Try to use a male voice if available
+      const preferredVoice = voices.find(voice =>
+        voice.name.includes('Male') ||
+        voice.name.includes('Daniel') ||
+        voice.name.includes('Alex') ||
+        voice.name.includes('Google')
+      )
 
-        // Try to use a male voice if available
-        const preferredVoice = voices.find(voice =>
-          voice.name.includes('Male') ||
-          voice.name.includes('Daniel') ||
-          voice.name.includes('Alex') ||
-          voice.name.includes('Google')
-        )
+      if (preferredVoice) {
+        utterance.voice = preferredVoice
+      } else if (voices.length > 0) {
+        utterance.voice = voices[0]
+      }
 
-        if (preferredVoice) {
-          utterance.voice = preferredVoice
-          console.log('Using voice:', preferredVoice.name)
-        } else if (voices.length > 0) {
-          utterance.voice = voices[0]
-          console.log('Using default voice:', voices[0].name)
+      // Resolve promise when speech finishes
+      utterance.onend = () => {
+        resolve()
+      }
+
+      utterance.onerror = (event) => {
+        // Don't log "canceled" errors as they're expected
+        if (event.error !== 'canceled') {
+          console.error('Speech error:', event.error)
         }
+        resolve()
+      }
 
-        // Resolve promise when speech finishes
-        utterance.onend = () => {
-          console.log('Speech ended')
-          resolve()
-        }
-
-        utterance.onerror = (event) => {
-          console.error('Speech error:', event)
-          resolve() // Resolve anyway so flow continues
-        }
-
-        utterance.onstart = () => {
-          console.log('Speech started:', text.substring(0, 50))
-        }
-
-        console.log('Speaking:', text.substring(0, 50))
-        window.speechSynthesis.speak(utterance)
-      }, 100)
+      window.speechSynthesis.speak(utterance)
     })
   }
 
@@ -137,13 +125,12 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
     }
   }, [currentSection])
 
-  // Load voices when component mounts
+  // Load voices when component mounts and cleanup on unmount
   useEffect(() => {
     if ('speechSynthesis' in window) {
       // Load voices
       const loadVoices = () => {
         const voices = window.speechSynthesis.getVoices()
-        console.log('Voices loaded on mount:', voices.length)
         if (voices.length > 0) {
           setVoicesLoaded(true)
         }
@@ -156,6 +143,11 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
 
       // Try loading immediately too
       loadVoices()
+
+      // Cleanup: cancel all speech when component unmounts
+      return () => {
+        window.speechSynthesis.cancel()
+      }
     }
   }, [])
 
@@ -177,7 +169,7 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
 
       {/* Mission text container */}
       <div className="relative z-10 max-w-4xl mx-auto px-6 md:px-12">
-        <AnimatePresence mode="wait">
+        <AnimatePresence>
           {sections.slice(0, currentSection + 1).map((section, index) => (
             <motion.div
               key={index}
