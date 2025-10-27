@@ -19,21 +19,31 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Update the rsvp_status and accepted_at timestamp
+    // Update the rsvp_status and accepted_at timestamp (only for accepted)
+    const updateData: { rsvp_status: string; accepted_at?: string } = {
+      rsvp_status: status,
+    }
+
+    // Only update accepted_at if status is 'accepted'
+    if (status === 'accepted') {
+      updateData.accepted_at = new Date().toISOString()
+    }
+
     const { data, error } = await supabase
       .from('mission_rsvps')
-      .update({
-        rsvp_status: status,
-        accepted_at: new Date().toISOString(),
-      })
+      .update(updateData)
       .eq('operative_name', operativeName)
       .select()
       .single()
 
     if (error) {
       console.error('Supabase error:', error)
+      console.error('Supabase error details:', JSON.stringify(error, null, 2))
       return NextResponse.json(
-        { error: 'Failed to submit RSVP' },
+        {
+          error: 'Failed to submit RSVP',
+          details: error.message || 'Unknown database error'
+        },
         { status: 500 }
       )
     }
