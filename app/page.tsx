@@ -50,7 +50,9 @@ export default function Home() {
         setResponse(status)
       } else {
         console.error('RSVP failed:', data.error)
-        alert('Failed to submit response. Please try again.')
+        console.error('RSVP error details:', data.details)
+        console.error('Full error response:', data)
+        alert(`Failed to submit response: ${data.details || data.error || 'Unknown error'}`)
       }
     } catch (error) {
       console.error('Error submitting response:', error)
