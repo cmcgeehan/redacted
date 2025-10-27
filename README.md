@@ -4,11 +4,12 @@ A cinematic Mission: Impossible-themed bachelor party invitation website.
 
 ## Features
 
+- 🔐 Individual password authentication for each operative
 - 🎬 5-second countdown with glitch effects
 - 🎵 YouTube Shorts embed with M:I theme
 - 📝 Typewriter-style mission briefing
 - 🕵️ Operative selection and RSVP system
-- 💾 Supabase integration for tracking responses
+- 💾 Supabase integration for authentication and tracking responses
 - 📱 Mobile responsive design
 - ♿ Accessible (keyboard navigation, proper contrast)
 
@@ -44,16 +45,26 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 1. Open your Supabase project dashboard
 2. Go to SQL Editor
 3. Run the SQL from `SCHEMA.sql` to create the `mission_rsvps` table
+4. Add your operatives with individual passwords:
+
+```sql
+INSERT INTO mission_rsvps (operative_name, operative_password) VALUES
+  ('Agent Name 1', 'their_password_1'),
+  ('Agent Name 2', 'their_password_2'),
+  ('Agent Name 3', 'their_password_3');
+```
+
+**Important:** Each operative gets their own unique password!
 
 ### 4. Update Operative Names
 
-Edit `lib/constants.ts` and replace the placeholder names with your actual guest list:
+Edit `lib/constants.ts` and replace with your actual guest names (must match database exactly):
 
 ```typescript
 export const OPERATIVES = [
-  'Sean',
-  'Mike',
-  'Jake',
+  'Agent Name 1',
+  'Agent Name 2',
+  'Agent Name 3',
   // Add your guests here
 ]
 ```
@@ -114,11 +125,14 @@ After deployment:
 ```
 mission-invitation/
 ├── app/
-│   ├── api/rsvp/route.ts    # RSVP API endpoint
+│   ├── api/
+│   │   ├── login/route.ts    # Authentication API endpoint
+│   │   └── rsvp/route.ts     # RSVP API endpoint
 │   ├── globals.css           # Global styles + animations
 │   ├── layout.tsx            # Root layout
 │   └── page.tsx              # Main orchestrator
 ├── components/
+│   ├── LoginScreen.tsx       # Agent authentication screen
 │   ├── Countdown.tsx         # 5-second countdown
 │   ├── MissionBriefing.tsx   # Typewriter mission text
 │   ├── OperativeSelector.tsx # RSVP dropdown + button
@@ -132,12 +146,16 @@ mission-invitation/
 
 ## Testing Checklist
 
-- [ ] Countdown animates smoothly
+- [ ] Login screen loads with IMF branding
+- [ ] Correct agent name + password grants access
+- [ ] Incorrect credentials show error message
+- [ ] Countdown animates smoothly after login
 - [ ] Video autoplays (or shows play button on mobile)
 - [ ] Mission briefing text appears sequentially
 - [ ] Operative dropdown works
 - [ ] RSVP submits successfully
 - [ ] Success animation shows after submission
+- [ ] Accepted_at timestamp updates in database
 - [ ] Works on mobile devices
 - [ ] Works on different browsers (Chrome, Safari, Firefox)
 - [ ] Keyboard navigation works (Tab, Enter)

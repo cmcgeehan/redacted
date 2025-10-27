@@ -12,28 +12,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if operative has already accepted
-    const { data: existing } = await supabase
-      .from('mission_rsvps')
-      .select('*')
-      .eq('operative_name', operativeName)
-      .single()
-
-    if (existing) {
-      return NextResponse.json(
-        { message: 'Mission already accepted', rsvp: existing },
-        { status: 200 }
-      )
-    }
-
-    // Insert new RSVP
+    // Update the accepted_at timestamp for the operative
+    // This marks when they officially accepted the mission through the UI
     const { data, error } = await supabase
       .from('mission_rsvps')
-      .insert([
-        {
-          operative_name: operativeName,
-        },
-      ])
+      .update({
+        accepted_at: new Date().toISOString(),
+      })
+      .eq('operative_name', operativeName)
       .select()
       .single()
 
@@ -45,9 +31,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    if (!data) {
+      return NextResponse.json(
+        { error: 'Operative not found' },
+        { status: 404 }
+      )
+    }
+
     return NextResponse.json(
       { message: 'Mission accepted successfully', rsvp: data },
-      { status: 201 }
+      { status: 200 }
     )
   } catch (error) {
     console.error('API error:', error)

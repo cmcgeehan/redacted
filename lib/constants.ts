@@ -1,15 +1,11 @@
 // List of operatives invited to the mission
-// TODO: Update this list with actual guest names
+// These names must match exactly what's in the database
 export const OPERATIVES = [
-  'Sean',
-  'Mike',
-  'Jake',
-  'Tom',
-  'Dan',
-  'Chris',
-  'Alex',
-  'Matt',
-  // Add more operative names here
+  'Beñ',
+  'Bill Squilliam',
+  'Yackson',
+  'Big Fudge',
+  'AI_SLOP',
 ]
 
 // Mission details

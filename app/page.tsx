@@ -1,18 +1,25 @@
 'use client'
 
 import { useState } from 'react'
+import LoginScreen from '@/components/LoginScreen'
 import Countdown from '@/components/Countdown'
 import VideoEmbed from '@/components/VideoEmbed'
 import MissionBriefing from '@/components/MissionBriefing'
 import OperativeSelector from '@/components/OperativeSelector'
 
-type Stage = 'countdown' | 'briefing' | 'selector'
+type Stage = 'login' | 'countdown' | 'briefing' | 'selector'
 
 export default function Home() {
-  const [stage, setStage] = useState<Stage>('countdown')
+  const [stage, setStage] = useState<Stage>('login')
+  const [authenticatedAgent, setAuthenticatedAgent] = useState<string>('')
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isAccepted, setIsAccepted] = useState(false)
+
+  const handleAuthenticated = (agentName: string) => {
+    setAuthenticatedAgent(agentName)
+    setStage('countdown')
+  }
 
   const handleCountdownComplete = () => {
     setStage('briefing')
@@ -64,6 +71,8 @@ export default function Home() {
       {stage === 'countdown' && <VideoEmbed isPlaying={isVideoPlaying} />}
 
       {/* Stage components */}
+      {stage === 'login' && <LoginScreen onAuthenticated={handleAuthenticated} />}
+
       {stage === 'countdown' && <Countdown onComplete={handleCountdownComplete} />}
 
       {stage === 'briefing' && <MissionBriefing onComplete={handleBriefingComplete} />}
