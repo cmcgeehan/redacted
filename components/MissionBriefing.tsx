@@ -10,8 +10,34 @@ interface MissionBriefingProps {
 
 export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
   const [currentSection, setCurrentSection] = useState(0)
-  const [selfDestructCount, setSelfDestructCount] = useState(5)
+  const [selfDestructCount, setSelfDestructCount] = useState(10)
   const [showSelfDestruct, setShowSelfDestruct] = useState(false)
+
+  // Text-to-speech function
+  const speak = (text: string) => {
+    if ('speechSynthesis' in window) {
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel()
+
+      const utterance = new SpeechSynthesisUtterance(text)
+      utterance.rate = 0.9 // Slightly slower for dramatic effect
+      utterance.pitch = 0.8 // Lower pitch for authority
+      utterance.volume = 0.8
+
+      // Try to use a male voice if available
+      const voices = window.speechSynthesis.getVoices()
+      const preferredVoice = voices.find(voice =>
+        voice.name.includes('Male') ||
+        voice.name.includes('Daniel') ||
+        voice.name.includes('Alex')
+      )
+      if (preferredVoice) {
+        utterance.voice = preferredVoice
+      }
+
+      window.speechSynthesis.speak(utterance)
+    }
+  }
 
   const sections = [
     {
@@ -45,7 +71,7 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
       delay: 18000,
     },
     {
-      text: 'This message will self-destruct in five seconds.',
+      text: 'This message will self-destruct in ten seconds.',
       className: 'text-xl md:text-2xl text-spy-red font-bold mb-4',
       delay: 22000,
     },
@@ -53,6 +79,10 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
 
   useEffect(() => {
     if (currentSection < sections.length) {
+      // Speak the current section text
+      const cleanText = sections[currentSection].text.replace(/["""]/g, '') // Remove quotes for better speech
+      speak(cleanText)
+
       const timer = setTimeout(() => {
         setCurrentSection(currentSection + 1)
       }, sections[currentSection].delay + (currentSection === 0 ? 0 : 2000))
@@ -63,6 +93,14 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
       setTimeout(() => setShowSelfDestruct(true), 2000)
     }
   }, [currentSection, showSelfDestruct])
+
+  // Load voices when component mounts
+  useEffect(() => {
+    if ('speechSynthesis' in window) {
+      // Load voices
+      window.speechSynthesis.getVoices()
+    }
+  }, [])
 
   useEffect(() => {
     if (showSelfDestruct && selfDestructCount > 0) {

@@ -84,7 +84,7 @@ export default function LoginScreen({ onAuthenticated }: LoginScreenProps) {
         className="relative z-10 max-w-md w-full mx-auto px-6"
       >
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="flex flex-col items-center mb-12">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -93,7 +93,7 @@ export default function LoginScreen({ onAuthenticated }: LoginScreenProps) {
             style={{
               textShadow: '0 0 20px rgba(220, 20, 60, 0.8), 0 0 40px rgba(220, 20, 60, 0.5)',
               letterSpacing: '0.3em',
-              marginLeft: '0.15em', // Compensate for letter-spacing to center properly
+              paddingLeft: '0.3em', // Add padding equal to letter-spacing to truly center
             }}
           >
             CLASSIFIED
