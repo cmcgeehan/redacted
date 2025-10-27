@@ -5,7 +5,7 @@ export async function GET() {
   try {
     const { data, error } = await supabase
       .from('mission_rsvps')
-      .select('operative_name')
+      .select('operative_name, password_hint, second_hint')
       .order('operative_name', { ascending: true })
 
     if (error) {
@@ -16,10 +16,7 @@ export async function GET() {
       )
     }
 
-    // Extract just the names from the data
-    const operatives = data.map(row => row.operative_name)
-
-    return NextResponse.json({ operatives }, { status: 200 })
+    return NextResponse.json({ operatives: data }, { status: 200 })
   } catch (error) {
     console.error('API error:', error)
     return NextResponse.json(

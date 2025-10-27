@@ -8,13 +8,21 @@ interface LoginScreenProps {
   onAuthenticated: (agentName: string) => void
 }
 
+interface Operative {
+  operative_name: string
+  password_hint: string | null
+  second_hint: string | null
+}
+
 export default function LoginScreen({ onAuthenticated }: LoginScreenProps) {
   const [agentName, setAgentName] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isAuthenticating, setIsAuthenticating] = useState(false)
-  const [operatives, setOperatives] = useState<string[]>([])
+  const [operatives, setOperatives] = useState<Operative[]>([])
   const [isLoadingOperatives, setIsLoadingOperatives] = useState(true)
+  const [failedAttempts, setFailedAttempts] = useState(0)
+  const [selectedOperative, setSelectedOperative] = useState<Operative | null>(null)
 
   // Fetch operatives on mount
   useEffect(() => {
@@ -39,6 +47,18 @@ export default function LoginScreen({ onAuthenticated }: LoginScreenProps) {
 
     fetchOperatives()
   }, [])
+
+  // Update selected operative when agent name changes
+  useEffect(() => {
+    if (agentName) {
+      const operative = operatives.find(op => op.operative_name === agentName)
+      setSelectedOperative(operative || null)
+      // Reset failed attempts when switching operatives
+      setFailedAttempts(0)
+    } else {
+      setSelectedOperative(null)
+    }
+  }, [agentName, operatives])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -73,6 +93,7 @@ export default function LoginScreen({ onAuthenticated }: LoginScreenProps) {
         }, 1000)
       } else {
         setError(data.error || 'AUTHENTICATION FAILED')
+        setFailedAttempts(prev => prev + 1)
         setIsAuthenticating(false)
       }
     } catch (error) {
@@ -147,11 +168,35 @@ export default function LoginScreen({ onAuthenticated }: LoginScreenProps) {
             <CustomSelect
               value={agentName}
               onChange={setAgentName}
-              options={operatives}
+              options={operatives.map(op => op.operative_name)}
               placeholder={isLoadingOperatives ? '-- LOADING OPERATIVES --' : '-- SELECT OPERATIVE --'}
               disabled={isAuthenticating || isLoadingOperatives}
             />
           </div>
+
+          {/* Password Hint */}
+          {selectedOperative && selectedOperative.password_hint && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-spy-red/20 border-2 border-spy-red text-white px-4 py-3 rounded-lg text-center"
+            >
+              <div className="text-xs text-spy-red font-bold mb-1 tracking-wider">PASSWORD HINT</div>
+              <div className="text-sm font-mono">{selectedOperative.password_hint}</div>
+            </motion.div>
+          )}
+
+          {/* Second Hint - After 5 failed attempts */}
+          {selectedOperative && selectedOperative.second_hint && failedAttempts >= 5 && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-yellow-900/30 border-2 border-yellow-500 text-yellow-200 px-4 py-3 rounded-lg text-center"
+            >
+              <div className="text-xs text-yellow-400 font-bold mb-1 tracking-wider">ADDITIONAL HINT</div>
+              <div className="text-sm font-mono">{selectedOperative.second_hint}</div>
+            </motion.div>
+          )}
 
           {/* Password Input */}
           <div>
