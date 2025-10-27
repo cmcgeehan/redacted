@@ -146,8 +146,139 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
         </div>
       )}
 
+      {/* Mission Intel Visuals */}
+      {hasStarted && (
+        <div className="absolute right-8 top-1/2 -translate-y-1/2 z-10 hidden xl:block">
+          <AnimatePresence mode="wait">
+            {/* Map and Flag - Section 1 */}
+            {currentSection === 1 && (
+              <motion.div
+                key="map"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 50 }}
+                transition={{ duration: 0.8 }}
+                className="w-80 space-y-4"
+              >
+                {/* Map */}
+                <div className="border-4 border-spy-red bg-black p-4 shadow-2xl">
+                  <div className="text-spy-red text-xs font-mono mb-2 tracking-wider">
+                    [ MISSION LOCATION ]
+                  </div>
+                  <div className="relative bg-gray-900 aspect-[4/3] flex items-center justify-center">
+                    {/* Simple map representation */}
+                    <svg viewBox="0 0 400 300" className="w-full h-full">
+                      {/* North America outline (simplified) */}
+                      <path
+                        d="M 50,50 L 100,30 L 200,40 L 280,60 L 320,100 L 300,180 L 250,200 L 200,220 L 150,240 L 100,200 L 60,150 Z"
+                        fill="none"
+                        stroke="rgba(220, 20, 60, 0.5)"
+                        strokeWidth="2"
+                      />
+                      {/* Montreal marker */}
+                      <circle cx="220" cy="100" r="8" fill="#DC143C" className="animate-pulse" />
+                      <circle cx="220" cy="100" r="15" fill="none" stroke="#DC143C" strokeWidth="2" opacity="0.6" />
+                      <text x="240" y="105" fill="#DC143C" fontSize="14" fontWeight="bold">MONTRÉAL</text>
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Canadian Flag */}
+                <div className="border-4 border-spy-red bg-black p-4 shadow-2xl">
+                  <div className="text-spy-red text-xs font-mono mb-2 tracking-wider">
+                    [ TARGET NATION ]
+                  </div>
+                  <div className="flex h-24 overflow-hidden">
+                    <div className="w-1/3 bg-red-600" />
+                    <div className="w-1/3 bg-white flex items-center justify-center">
+                      <div className="text-red-600 text-5xl">🍁</div>
+                    </div>
+                    <div className="w-1/3 bg-red-600" />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Safehouse Image - Section 2 */}
+            {currentSection === 2 && (
+              <motion.div
+                key="safehouse"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 50 }}
+                transition={{ duration: 0.8 }}
+                className="w-96"
+              >
+                <div className="border-4 border-spy-red bg-black p-4 shadow-2xl">
+                  <div className="text-spy-red text-xs font-mono mb-2 tracking-wider">
+                    [ SAFEHOUSE LOCATION ]
+                  </div>
+                  <div className="relative aspect-[16/10] overflow-hidden">
+                    <img
+                      src="/safehouse.avif"
+                      alt="Safehouse"
+                      className="w-full h-full object-cover"
+                      style={{
+                        filter: 'sepia(100%) hue-rotate(-50deg) saturate(400%) brightness(0.6)'
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-spy-red/30 mix-blend-multiply" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute bottom-2 left-2 text-spy-red text-xs font-mono">
+                      CLASSIFIED
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Mission Stats - Section 3 */}
+            {currentSection === 3 && (
+              <motion.div
+                key="stats"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 50 }}
+                transition={{ duration: 0.8 }}
+                className="w-80 space-y-4"
+              >
+                {/* Duration */}
+                <div className="border-4 border-spy-red bg-black p-6 shadow-2xl">
+                  <div className="text-spy-red text-xs font-mono mb-2 tracking-wider">
+                    [ MISSION DURATION ]
+                  </div>
+                  <div className="text-spy-red text-6xl font-tech font-black text-center">
+                    72
+                  </div>
+                  <div className="text-gray-400 text-2xl font-tech text-center">
+                    HOURS
+                  </div>
+                </div>
+
+                {/* Temperature Warning */}
+                <div className="border-4 border-spy-red bg-black p-4 shadow-2xl">
+                  <div className="text-spy-red text-xs font-mono mb-2 tracking-wider">
+                    [ WEATHER ALERT ]
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-4xl">❄️</div>
+                    <div className="text-right">
+                      <div className="text-spy-red text-4xl font-tech font-black">7°F</div>
+                      <div className="text-gray-400 text-sm font-mono">(-14°C)</div>
+                    </div>
+                  </div>
+                  <div className="text-yellow-500 text-xs font-mono mt-2 animate-pulse">
+                    ⚠ EXTREME COLD WARNING
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
+
       {/* Mission text container */}
-      <div className="relative z-10 max-w-4xl mx-auto px-6 md:px-12">
+      <div className="relative z-10 max-w-4xl mx-auto px-6 md:px-12 xl:mr-[28rem]">
         <AnimatePresence>
           {hasStarted && sections.slice(0, currentSection + 1).map((section, index) => (
             <motion.div
