@@ -165,21 +165,20 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
                   <div className="text-spy-red text-xs font-mono mb-2 tracking-wider">
                     [ MISSION LOCATION ]
                   </div>
-                  <div className="relative bg-gray-900 aspect-[4/3] flex items-center justify-center">
-                    {/* Simple map representation */}
-                    <svg viewBox="0 0 400 300" className="w-full h-full">
-                      {/* North America outline (simplified) */}
-                      <path
-                        d="M 50,50 L 100,30 L 200,40 L 280,60 L 320,100 L 300,180 L 250,200 L 200,220 L 150,240 L 100,200 L 60,150 Z"
-                        fill="none"
-                        stroke="rgba(220, 20, 60, 0.5)"
-                        strokeWidth="2"
-                      />
-                      {/* Montreal marker */}
-                      <circle cx="220" cy="100" r="8" fill="#DC143C" className="animate-pulse" />
-                      <circle cx="220" cy="100" r="15" fill="none" stroke="#DC143C" strokeWidth="2" opacity="0.6" />
-                      <text x="240" y="105" fill="#DC143C" fontSize="14" fontWeight="bold">MONTRÉAL</text>
-                    </svg>
+                  <div className="relative aspect-[4/3] overflow-hidden">
+                    <img
+                      src="/montreal.jpeg"
+                      alt="Montreal Map"
+                      className="w-full h-full object-cover"
+                      style={{
+                        filter: 'sepia(100%) hue-rotate(-50deg) saturate(400%) brightness(0.6)'
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-spy-red/30 mix-blend-multiply" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute bottom-2 left-2 text-spy-red text-xs font-mono">
+                      MONTRÉAL, QC
+                    </div>
                   </div>
                 </div>
 
