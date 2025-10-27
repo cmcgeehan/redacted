@@ -28,6 +28,7 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
 
       // Get voices
       const voices = window.speechSynthesis.getVoices()
+      console.log('Available voices:', voices.length)
 
       // Try to use a male voice if available
       const preferredVoice = voices.find(voice =>
@@ -39,12 +40,17 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
 
       if (preferredVoice) {
         utterance.voice = preferredVoice
+        console.log('Using voice:', preferredVoice.name)
       } else if (voices.length > 0) {
         utterance.voice = voices[0]
+        console.log('Using default voice:', voices[0].name)
+      } else {
+        console.log('No voices available')
       }
 
       // Resolve promise when speech finishes
       utterance.onend = () => {
+        console.log('Speech finished')
         resolve()
       }
 
@@ -56,6 +62,7 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
         resolve()
       }
 
+      console.log('Starting speech...')
       window.speechSynthesis.speak(utterance)
     })
   }
@@ -118,12 +125,14 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
 
   // Play voiceover independently (non-blocking)
   useEffect(() => {
-    if (currentSection >= 0 && currentSection < sections.length) {
+    // Only speak if voices are loaded
+    if (voicesLoaded && currentSection >= 0 && currentSection < sections.length) {
       const cleanText = sections[currentSection].text.replace(/["""]/g, '')
+      console.log('Speaking section:', currentSection, cleanText.substring(0, 50) + '...')
       // Fire and forget - don't block on this
       speak(cleanText).catch(err => console.error('Speech error:', err))
     }
-  }, [currentSection])
+  }, [currentSection, voicesLoaded])
 
   // Load voices when component mounts and cleanup on unmount
   useEffect(() => {
@@ -132,6 +141,7 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
       const loadVoices = () => {
         const voices = window.speechSynthesis.getVoices()
         if (voices.length > 0) {
+          console.log('Voices loaded:', voices.length, 'voices available')
           setVoicesLoaded(true)
         }
       }

@@ -18,11 +18,31 @@ export default function OperativeSelector({
 }: OperativeSelectorProps) {
   // Play audio when component mounts
   useEffect(() => {
-    const audio = new Audio('https://on.soundcloud.com/6TB8HLE6h7HxfEtJ9Y')
+    const audio = new Audio('https://on.soundcloud.com/6TB8HLE6h7HxfEtJ9')
     audio.volume = 0.7
-    audio.play().catch(err => {
-      console.log('Audio autoplay blocked:', err)
+
+    console.log('Attempting to play audio...')
+
+    audio.addEventListener('canplaythrough', () => {
+      console.log('Audio can play through')
     })
+
+    audio.addEventListener('error', (e) => {
+      console.error('Audio error:', e)
+      console.error('Audio error details:', audio.error)
+    })
+
+    audio.addEventListener('loadeddata', () => {
+      console.log('Audio loaded')
+    })
+
+    audio.play()
+      .then(() => {
+        console.log('Audio playing successfully')
+      })
+      .catch(err => {
+        console.error('Audio autoplay blocked or failed:', err)
+      })
 
     return () => {
       audio.pause()
