@@ -1,13 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import LoginScreen from '@/components/LoginScreen'
 import Countdown from '@/components/Countdown'
 import VideoEmbed from '@/components/VideoEmbed'
 import MissionBriefing from '@/components/MissionBriefing'
 import OperativeSelector from '@/components/OperativeSelector'
+import MissionIntel from '@/components/MissionIntel'
 
-type Stage = 'login' | 'countdown' | 'briefing' | 'selector'
+type Stage = 'login' | 'countdown' | 'briefing' | 'selector' | 'intel'
 
 export default function Home() {
   const [stage, setStage] = useState<Stage>('login')
@@ -16,9 +17,27 @@ export default function Home() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [response, setResponse] = useState<'accepted' | 'declined' | null>(null)
 
-  const handleAuthenticated = (agentName: string) => {
+  const handleAuthenticated = async (agentName: string) => {
     setAuthenticatedAgent(agentName)
-    setStage('briefing')
+
+    // Check if user has already RSVP'd
+    try {
+      const response = await fetch(`/api/rsvp?operative=${encodeURIComponent(agentName)}`)
+      const data = await response.json()
+
+      if (data.rsvp && data.rsvp.rsvp_status === 'accepted') {
+        // If already accepted, go straight to intel
+        setResponse('accepted')
+        setStage('intel')
+      } else {
+        // Otherwise, show briefing
+        setStage('briefing')
+      }
+    } catch (error) {
+      console.error('Error checking RSVP status:', error)
+      // On error, just show briefing
+      setStage('briefing')
+    }
   }
 
   const handleBriefingComplete = () => {
@@ -48,6 +67,12 @@ export default function Home() {
 
       if (response.ok) {
         setResponse(status)
+        // If accepted, transition to intel page
+        if (status === 'accepted') {
+          setTimeout(() => {
+            setStage('intel')
+          }, 3000) // Wait 3 seconds to show the acceptance animation
+        }
       } else {
         console.error('RSVP failed:', data.error)
         alert('Failed to submit response. Please try again.')
@@ -91,6 +116,10 @@ export default function Home() {
           isSubmitting={isSubmitting}
           response={response}
         />
+      )}
+
+      {stage === 'intel' && (
+        <MissionIntel operativeName={authenticatedAgent} />
       )}
     </main>
   )
