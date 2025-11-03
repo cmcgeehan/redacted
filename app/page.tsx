@@ -48,6 +48,10 @@ export default function Home() {
     setStage('selector')
   }
 
+  const handleReplayBriefing = () => {
+    setStage('briefing')
+  }
+
   const handleRespondToMission = async (operativeName: string, status: 'accepted' | 'declined') => {
     setIsSubmitting(true)
 
@@ -119,7 +123,10 @@ export default function Home() {
       )}
 
       {stage === 'intel' && (
-        <MissionIntel operativeName={authenticatedAgent} />
+        <MissionIntel
+          operativeName={authenticatedAgent}
+          onReplayBriefing={handleReplayBriefing}
+        />
       )}
     </main>
   )

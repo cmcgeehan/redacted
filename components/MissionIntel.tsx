@@ -6,6 +6,7 @@ import { MISSION_DETAILS } from '@/lib/constants'
 
 interface MissionIntelProps {
   operativeName: string
+  onReplayBriefing: () => void
 }
 
 type Section = 'overview' | 'checklist' | 'schedule' | 'gear' | 'funding' | 'operatives'
@@ -27,12 +28,10 @@ interface DaySchedule {
   events: MissionEvent[]
 }
 
-export default function MissionIntel({ operativeName }: MissionIntelProps) {
+export default function MissionIntel({ operativeName, onReplayBriefing }: MissionIntelProps) {
   const [currentSection, setCurrentSection] = useState<Section>('overview')
   const [operatives, setOperatives] = useState<Operative[]>([])
   const [isLoadingOperatives, setIsLoadingOperatives] = useState(true)
-  const [isPlayingBriefing, setIsPlayingBriefing] = useState(false)
-  const [briefingAudio, setBriefingAudio] = useState<HTMLAudioElement | null>(null)
 
   // Fetch accepted operatives
   useEffect(() => {
@@ -55,43 +54,6 @@ export default function MissionIntel({ operativeName }: MissionIntelProps) {
 
     fetchOperatives()
   }, [])
-
-  // Setup briefing audio
-  useEffect(() => {
-    const audio = new Audio('/ttsMP3.com_VoiceText_2025-10-27_11-50-3.mp3')
-    audio.volume = 0.9
-
-    audio.addEventListener('ended', () => {
-      setIsPlayingBriefing(false)
-    })
-
-    audio.addEventListener('pause', () => {
-      setIsPlayingBriefing(false)
-    })
-
-    audio.addEventListener('play', () => {
-      setIsPlayingBriefing(true)
-    })
-
-    setBriefingAudio(audio)
-
-    return () => {
-      audio.pause()
-      audio.currentTime = 0
-      setBriefingAudio(null)
-    }
-  }, [])
-
-  const handlePlayBriefing = () => {
-    if (briefingAudio) {
-      if (isPlayingBriefing) {
-        briefingAudio.pause()
-      } else {
-        briefingAudio.currentTime = 0 // Restart from beginning
-        briefingAudio.play().catch(err => console.error('Audio playback error:', err))
-      }
-    }
-  }
 
   const sections = [
     { id: 'overview' as Section, label: 'MISSION OVERVIEW', icon: '📋' },
@@ -272,26 +234,14 @@ export default function MissionIntel({ operativeName }: MissionIntelProps) {
                     </h3>
                     <div className="flex flex-col sm:flex-row items-center gap-4">
                       <button
-                        onClick={handlePlayBriefing}
-                        className={`flex items-center gap-3 px-6 py-4 font-mono font-bold text-lg transition-all border-2 rounded w-full sm:w-auto justify-center ${
-                          isPlayingBriefing
-                            ? 'bg-spy-red text-white border-white hover:bg-red-600'
-                            : 'bg-black/50 text-spy-red border-spy-red hover:bg-spy-red hover:text-white hover:border-white'
-                        }`}
+                        onClick={onReplayBriefing}
+                        className="flex items-center gap-3 px-6 py-4 font-mono font-bold text-lg transition-all border-2 rounded w-full sm:w-auto justify-center bg-black/50 text-spy-red border-spy-red hover:bg-spy-red hover:text-white hover:border-white"
                       >
-                        <span className="text-2xl">
-                          {isPlayingBriefing ? '⏸' : '▶'}
-                        </span>
-                        <span>
-                          {isPlayingBriefing ? 'STOP BRIEFING' : 'PLAY AUDIO BRIEFING'}
-                        </span>
+                        <span className="text-2xl">▶</span>
+                        <span>REPLAY FULL BRIEFING</span>
                       </button>
                       <div className="text-gray-400 text-sm font-mono text-center sm:text-left">
-                        {isPlayingBriefing ? (
-                          <span className="text-spy-red animate-pulse">● NOW PLAYING</span>
-                        ) : (
-                          'Replay the original mission briefing'
-                        )}
+                        Replay the original mission briefing (audio & video)
                       </div>
                     </div>
                   </div>
