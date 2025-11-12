@@ -6,9 +6,10 @@ import { MISSION_DETAILS } from '@/lib/constants'
 
 interface MissionBriefingProps {
   onComplete: () => void
+  onSkip: () => void
 }
 
-export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
+export default function MissionBriefing({ onComplete, onSkip }: MissionBriefingProps) {
   const [currentSection, setCurrentSection] = useState(-1) // Start at -1 to wait for user
   const [hasStarted, setHasStarted] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
@@ -144,6 +145,19 @@ export default function MissionBriefing({ onComplete }: MissionBriefingProps) {
             </button>
           </motion.div>
         </div>
+      )}
+
+      {/* Skip button - shown during briefing */}
+      {hasStarted && currentSection < sections.length && (
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2 }}
+          onClick={onSkip}
+          className="fixed top-8 right-8 z-30 bg-gray-800/80 hover:bg-gray-700 text-gray-300 hover:text-white px-6 py-3 rounded-lg font-mono text-sm transition-all border border-gray-600 hover:border-spy-red"
+        >
+          [ SKIP BRIEFING ]
+        </motion.button>
       )}
 
       {/* Mission Intel Visuals - Desktop (right side) */}

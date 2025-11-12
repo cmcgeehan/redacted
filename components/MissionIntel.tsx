@@ -30,30 +30,11 @@ interface DaySchedule {
 
 export default function MissionIntel({ operativeName, onReplayBriefing }: MissionIntelProps) {
   const [currentSection, setCurrentSection] = useState<Section>('overview')
-  const [operatives, setOperatives] = useState<Operative[]>([])
-  const [isLoadingOperatives, setIsLoadingOperatives] = useState(true)
 
-  // Fetch accepted operatives
-  useEffect(() => {
-    const fetchOperatives = async () => {
-      try {
-        const response = await fetch('/api/rsvp')
-        const data = await response.json()
-
-        if (response.ok) {
-          // Filter for accepted operatives only
-          const accepted = data.rsvps?.filter((rsvp: any) => rsvp.rsvp_status === 'accepted') || []
-          setOperatives(accepted)
-        }
-      } catch (error) {
-        console.error('Failed to fetch operatives:', error)
-      } finally {
-        setIsLoadingOperatives(false)
-      }
-    }
-
-    fetchOperatives()
-  }, [])
+  // Note: Operative roster is now managed in the WhatsApp group
+  // This section has been simplified to remove database dependency
+  const operatives: Operative[] = []
+  const isLoadingOperatives = false
 
   const sections = [
     { id: 'overview' as Section, label: 'MISSION OVERVIEW', icon: '📋' },
@@ -353,8 +334,8 @@ export default function MissionIntel({ operativeName, onReplayBriefing }: Missio
                       <div className="flex items-start gap-4 p-4 bg-black/40 border-l-4 border-spy-red rounded">
                         <div className="text-spy-red text-2xl mt-1 flex-shrink-0">▸</div>
                         <div className="flex-1">
-                          <div className="text-white font-tech text-base mb-1">RSVP to Mission</div>
-                          <div className="text-gray-400 text-sm">Accept or decline the mission invitation</div>
+                          <div className="text-white font-tech text-base mb-1">RSVP to Mission via SCIF Channel</div>
+                          <div className="text-gray-400 text-sm">Confirm attendance and provide mission details in the WhatsApp group</div>
                         </div>
                       </div>
 
@@ -371,12 +352,21 @@ export default function MissionIntel({ operativeName, onReplayBriefing }: Missio
                       <div className="flex items-start gap-4 p-4 bg-black/40 border-l-4 border-spy-red rounded">
                         <div className="text-spy-red text-2xl mt-1 flex-shrink-0">▸</div>
                         <div className="flex-1">
+                          <div className="text-white font-tech text-base mb-1">Report Flight Numbers in SCIF Channel</div>
+                          <div className="text-gray-400 text-sm">Drop your flight details in the WhatsApp group for coordination</div>
+                        </div>
+                      </div>
+
+                      {/* Objective 4 */}
+                      <div className="flex items-start gap-4 p-4 bg-black/40 border-l-4 border-spy-red rounded">
+                        <div className="text-spy-red text-2xl mt-1 flex-shrink-0">▸</div>
+                        <div className="flex-1">
                           <div className="text-white font-tech text-base mb-1">Secure Passport for Travel</div>
                           <div className="text-gray-400 text-sm">Ensure valid passport for cross-border operations</div>
                         </div>
                       </div>
 
-                      {/* Objective 4 */}
+                      {/* Objective 5 */}
                       <div className="flex items-start gap-4 p-4 bg-black/40 border-l-4 border-spy-red rounded">
                         <div className="text-spy-red text-2xl mt-1 flex-shrink-0">▸</div>
                         <div className="flex-1">
@@ -853,44 +843,28 @@ export default function MissionIntel({ operativeName, onReplayBriefing }: Missio
                     [ CONFIRMED OPERATIVES ]
                   </h2>
 
-                  {isLoadingOperatives ? (
-                    <div className="text-center py-12">
-                      <div className="text-spy-red text-2xl mb-4 animate-spin inline-block">⟳</div>
-                      <div className="text-gray-400 font-mono">LOADING OPERATIVE DATA...</div>
+                  <div className="text-center py-8">
+                    <div className="text-gray-300 mb-6 leading-relaxed">
+                      <p className="mb-4">
+                        The operative roster and mission coordination are now managed through the secure communications channel.
+                      </p>
+                      <p className="text-spy-red font-bold">
+                        Join the SCIF channel to see confirmed operatives and coordinate with the team.
+                      </p>
                     </div>
-                  ) : operatives.length === 0 ? (
-                    <div className="text-center py-12">
-                      <div className="text-gray-400 font-mono mb-2">NO CONFIRMED OPERATIVES YET</div>
-                      <div className="text-gray-500 text-sm">Waiting for other agents to accept the mission</div>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {operatives.map((operative, index) => (
-                        <motion.div
-                          key={operative.operative_name}
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: index * 0.05 }}
-                          className="border-2 border-spy-red/50 bg-black/60 p-4 rounded hover:border-spy-red transition-all"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="text-3xl">🎯</div>
-                            <div className="flex-1">
-                              <div className="text-white font-tech font-bold text-lg">
-                                {operative.operative_name}
-                              </div>
-                              <div className="text-gray-500 text-xs font-mono">OPERATIVE</div>
-                            </div>
-                            <div className="text-green-500 text-xl">✓</div>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  )}
 
-                  <div className="mt-8 pt-6 border-t border-spy-red/50">
-                    <div className="text-gray-400 text-sm font-mono">
-                      Total Confirmed: <span className="text-spy-red font-bold">{operatives.length}</span>
+                    <a
+                      href="https://chat.whatsapp.com/Ck373wwKOyJ08QNo5eXzHp?mode=wwt"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-3 px-8 py-4 font-mono font-bold text-lg transition-all border-2 rounded bg-green-700 text-white border-white hover:bg-green-600 hover:scale-105 shadow-lg"
+                    >
+                      <span className="text-2xl">💬</span>
+                      <span>JOIN SCIF CHANNEL</span>
+                    </a>
+
+                    <div className="text-gray-500 text-xs font-mono mt-4">
+                      View roster and coordinate via WhatsApp
                     </div>
                   </div>
                 </div>

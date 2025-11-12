@@ -3,6 +3,7 @@
 import { useState, useEffect, FormEvent } from 'react'
 import { motion } from 'framer-motion'
 import CustomSelect from './CustomSelect'
+import { getAllOperatives, authenticateOperative } from '@/lib/operatives'
 
 interface LoginScreenProps {
   onAuthenticated: (agentName: string) => void
@@ -19,34 +20,9 @@ export default function LoginScreen({ onAuthenticated }: LoginScreenProps) {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isAuthenticating, setIsAuthenticating] = useState(false)
-  const [operatives, setOperatives] = useState<Operative[]>([])
-  const [isLoadingOperatives, setIsLoadingOperatives] = useState(true)
+  const [operatives] = useState<Operative[]>(getAllOperatives())
   const [failedAttempts, setFailedAttempts] = useState(0)
   const [selectedOperative, setSelectedOperative] = useState<Operative | null>(null)
-
-  // Fetch operatives on mount
-  useEffect(() => {
-    const fetchOperatives = async () => {
-      try {
-        const response = await fetch('/api/operatives')
-        const data = await response.json()
-
-        if (response.ok && data.operatives) {
-          setOperatives(data.operatives)
-        } else {
-          console.error('Failed to fetch operatives:', data.error)
-          setError('Failed to load operative list')
-        }
-      } catch (error) {
-        console.error('Error fetching operatives:', error)
-        setError('Failed to load operative list')
-      } finally {
-        setIsLoadingOperatives(false)
-      }
-    }
-
-    fetchOperatives()
-  }, [])
 
   // Update selected operative when agent name changes
   useEffect(() => {
@@ -60,7 +36,7 @@ export default function LoginScreen({ onAuthenticated }: LoginScreenProps) {
     }
   }, [agentName, operatives])
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
     setError('')
 
@@ -72,33 +48,18 @@ export default function LoginScreen({ onAuthenticated }: LoginScreenProps) {
 
     setIsAuthenticating(true)
 
-    try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          operativeName: agentName.trim(),
-          password: password,
-        }),
-      })
+    // Authenticate using hardcoded data
+    const result = authenticateOperative(agentName.trim(), password)
 
-      const data = await response.json()
-
-      if (response.ok && data.authenticated) {
-        // Success - brief pause for dramatic effect
-        setTimeout(() => {
-          onAuthenticated(data.operativeName)
-        }, 1000)
-      } else {
-        setError(data.error || 'AUTHENTICATION FAILED')
-        setFailedAttempts(prev => prev + 1)
+    if (result.success) {
+      // Success - brief pause for dramatic effect
+      setTimeout(() => {
+        onAuthenticated(agentName.trim())
         setIsAuthenticating(false)
-      }
-    } catch (error) {
-      console.error('Authentication error:', error)
-      setError('SYSTEM ERROR - TRY AGAIN')
+      }, 1000)
+    } else {
+      setError('INVALID ACCESS CODE')
+      setFailedAttempts(prev => prev + 1)
       setIsAuthenticating(false)
     }
   }
@@ -169,8 +130,8 @@ export default function LoginScreen({ onAuthenticated }: LoginScreenProps) {
               value={agentName}
               onChange={setAgentName}
               options={operatives.map(op => op.operative_name)}
-              placeholder={isLoadingOperatives ? '-- LOADING OPERATIVES --' : '-- SELECT OPERATIVE --'}
-              disabled={isAuthenticating || isLoadingOperatives}
+              placeholder='-- SELECT OPERATIVE --'
+              disabled={isAuthenticating}
             />
           </div>
 

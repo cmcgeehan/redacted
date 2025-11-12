@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import LoginScreen from '@/components/LoginScreen'
 import Countdown from '@/components/Countdown'
 import VideoEmbed from '@/components/VideoEmbed'
@@ -14,79 +14,30 @@ export default function Home() {
   const [stage, setStage] = useState<Stage>('login')
   const [authenticatedAgent, setAuthenticatedAgent] = useState<string>('')
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [response, setResponse] = useState<'accepted' | 'declined' | null>(null)
 
-  const handleAuthenticated = async (agentName: string) => {
+  const handleAuthenticated = (agentName: string) => {
     setAuthenticatedAgent(agentName)
-
-    // Check if user has already RSVP'd
-    try {
-      const response = await fetch(`/api/rsvp?operative=${encodeURIComponent(agentName)}`)
-      const data = await response.json()
-
-      if (data.rsvp && data.rsvp.rsvp_status === 'accepted') {
-        // If already accepted, go straight to intel
-        setResponse('accepted')
-        setStage('intel')
-      } else {
-        // Otherwise, show briefing
-        setStage('briefing')
-      }
-    } catch (error) {
-      console.error('Error checking RSVP status:', error)
-      // On error, just show briefing
-      setStage('briefing')
-    }
+    setStage('briefing')
   }
 
   const handleBriefingComplete = () => {
     setStage('countdown')
   }
 
+  const handleBriefingSkip = () => {
+    setStage('selector')
+  }
+
   const handleCountdownComplete = () => {
     setStage('selector')
   }
 
-  const handleReplayBriefing = () => {
-    setStage('briefing')
+  const handleProceedToIntel = () => {
+    setStage('intel')
   }
 
-  const handleRespondToMission = async (operativeName: string, status: 'accepted' | 'declined') => {
-    setIsSubmitting(true)
-
-    try {
-      const response = await fetch('/api/rsvp', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          operativeName,
-          status
-        }),
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        setResponse(status)
-        // If accepted, transition to intel page
-        if (status === 'accepted') {
-          setTimeout(() => {
-            setStage('intel')
-          }, 3000) // Wait 3 seconds to show the acceptance animation
-        }
-      } else {
-        console.error('RSVP failed:', data.error)
-        alert('Failed to submit response. Please try again.')
-      }
-    } catch (error) {
-      console.error('Error submitting response:', error)
-      alert('Failed to submit response. Please try again.')
-    } finally {
-      setIsSubmitting(false)
-    }
+  const handleReplayBriefing = () => {
+    setStage('briefing')
   }
 
   // Start video when countdown begins
@@ -109,16 +60,14 @@ export default function Home() {
       {/* Stage components */}
       {stage === 'login' && <LoginScreen onAuthenticated={handleAuthenticated} />}
 
-      {stage === 'briefing' && <MissionBriefing onComplete={handleBriefingComplete} />}
+      {stage === 'briefing' && <MissionBriefing onComplete={handleBriefingComplete} onSkip={handleBriefingSkip} />}
 
       {stage === 'countdown' && <Countdown onComplete={handleCountdownComplete} />}
 
       {stage === 'selector' && (
         <OperativeSelector
           operativeName={authenticatedAgent}
-          onRespondToMission={handleRespondToMission}
-          isSubmitting={isSubmitting}
-          response={response}
+          onProceedToIntel={handleProceedToIntel}
         />
       )}
 

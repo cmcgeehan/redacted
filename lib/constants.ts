@@ -1,11 +1,12 @@
 // List of operatives invited to the mission
-// These names must match exactly what's in the database
 export const OPERATIVES = [
   'Beñ',
   'Bill Squilliam',
   'Yackson',
   'Big Fudge',
   'AI_SLOP',
+  'C',
+  'Canadian Tux',
 ]
 
 // Mission details
