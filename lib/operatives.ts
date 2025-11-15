@@ -17,15 +17,15 @@ export const OPERATIVES_DATA: Operative[] = [
   },
   {
     operative_name: 'Bill Squilliam',
-    operative_password: 'houthinni_pc_small_group',
-    password_hint: 'theological studies',
-    second_hint: 'a small community of believers',
+    operative_password: 'keg',
+    password_hint: 'keg',
+    second_hint: 'keg',
   },
   {
-    operative_name: 'Yackson',
-    operative_password: 'whip_route',
-    password_hint: 'football play',
-    second_hint: 'quick turn and sprint',
+    operative_name: 'Whip Route',
+    operative_password: 'democratea',
+    password_hint: 'I could use a cup right now',
+    second_hint: 'divers',
   },
   {
     operative_name: 'Big Fudge',
@@ -35,9 +35,9 @@ export const OPERATIVES_DATA: Operative[] = [
   },
   {
     operative_name: 'AI_SLOP',
-    operative_password: 'azuli',
-    password_hint: 'blue gemstone',
-    second_hint: 'lapis lazuli without the lapis',
+    operative_password: 'Azuli',
+    password_hint: 'Your very own AI slop',
+    second_hint: 'sutdios',
   },
   {
     operative_name: 'C',
